@@ -9,6 +9,7 @@ let updateState = {
     campFireRegeneration: undefined
 }
 
+
 export function updateGameState({ state, value }) { updateState[state] = value }
 let encBooks = []
 let oneSecondTimer = 0
@@ -550,7 +551,7 @@ export async function openForm({ player, formKey, admin }) {
 }
 export function setPlayersHealth({ player, hearts, withdraw = false, removeItem }) {
     const max = getPlayersMaxHealth(player)
-    let newHealth
+    let newHealth=0
     if (withdraw === true) {
         if (hearts >= (max / 2)) {
             player.sendMessage(`§cInsufficient amount of hearts gain more hearts to withdraw §7${hearts} §chearts!`)
@@ -563,6 +564,7 @@ export function setPlayersHealth({ player, hearts, withdraw = false, removeItem 
         newHealth = newHealth * 2
     }
     else {
+        Mc.world.sendMessage(`${max}`)
         if (removeItem !== undefined) {
             if (removeItems(player, removeItem.typeId, removeItem.amount) === false) return
             newHealth = Math.floor(max / 2) + hearts
