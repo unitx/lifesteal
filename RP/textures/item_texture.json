@@ -1,0 +1,15 @@
+{
+	"texture_name": "atlas.items",
+	"texture_data": {
+		"soul": {
+			"textures": [
+				"textures/items/Soul"
+			]
+		},
+		"heart": {
+			"textures": [
+				"textures/items/heart"
+			]
+		}
+	}
+}

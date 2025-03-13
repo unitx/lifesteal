@@ -1,0 +1,270 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.beacon",
+				"texture_width": 16,
+				"texture_height": 16,
+				"visible_bounds_width": 3,
+				"visible_bounds_height": 2.5,
+				"visible_bounds_offset": [
+					0,
+					0.75,
+					0
+				]
+			},
+			"bones": [
+				{
+					"name": "beacon",
+					"pivot": [
+						0,
+						0,
+						0
+					],
+					"cubes": [
+						{
+							"origin": [
+								-6,
+								0.1,
+								-6
+							],
+							"size": [
+								12,
+								3,
+								12
+							],
+							"uv": {
+								"north": {
+									"uv": [
+										9,
+										6.5
+									],
+									"uv_size": [
+										6,
+										1.5
+									],
+									"material_instance": "alpha_test"
+								},
+								"east": {
+									"uv": [
+										9,
+										6.5
+									],
+									"uv_size": [
+										6,
+										1.5
+									],
+									"material_instance": "alpha_test"
+								},
+								"south": {
+									"uv": [
+										9,
+										6.5
+									],
+									"uv_size": [
+										6,
+										1.5
+									],
+									"material_instance": "alpha_test"
+								},
+								"west": {
+									"uv": [
+										9,
+										6.5
+									],
+									"uv_size": [
+										6,
+										1.5
+									],
+									"material_instance": "alpha_test"
+								},
+								"up": {
+									"uv": [
+										15,
+										7
+									],
+									"uv_size": [
+										-6,
+										-6
+									],
+									"material_instance": "alpha_test"
+								},
+								"down": {
+									"uv": [
+										15,
+										7
+									],
+									"uv_size": [
+										-6,
+										-6
+									],
+									"material_instance": "alpha_test"
+								}
+							}
+						},
+						{
+							"origin": [
+								-5,
+								3,
+								-5
+							],
+							"size": [
+								10,
+								11,
+								10
+							],
+							"uv": {
+								"north": {
+									"uv": [
+										1.5,
+										1
+									],
+									"uv_size": [
+										5,
+										5.5
+									],
+									"material_instance": "alpha_test"
+								},
+								"east": {
+									"uv": [
+										1.5,
+										1
+									],
+									"uv_size": [
+										5,
+										5.5
+									],
+									"material_instance": "alpha_test"
+								},
+								"south": {
+									"uv": [
+										1.5,
+										1
+									],
+									"uv_size": [
+										5,
+										5.5
+									],
+									"material_instance": "alpha_test"
+								},
+								"west": {
+									"uv": [
+										1.5,
+										1
+									],
+									"uv_size": [
+										5,
+										5.5
+									],
+									"material_instance": "alpha_test"
+								},
+								"up": {
+									"uv": [
+										6.5,
+										6.5
+									],
+									"uv_size": [
+										-5,
+										-5
+									],
+									"material_instance": "alpha_test"
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "glass",
+					"pivot": [
+						0,
+						0,
+						0
+					],
+					"cubes": [
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								16,
+								16,
+								16
+							],
+							"uv": {
+								"north": {
+									"uv": [
+										8,
+										8
+									],
+									"uv_size": [
+										8,
+										8
+									],
+									"material_instance": "blend"
+								},
+								"east": {
+									"uv": [
+										8,
+										8
+									],
+									"uv_size": [
+										8,
+										8
+									],
+									"material_instance": "blend"
+								},
+								"south": {
+									"uv": [
+										8,
+										8
+									],
+									"uv_size": [
+										8,
+										8
+									],
+									"material_instance": "blend"
+								},
+								"west": {
+									"uv": [
+										8,
+										8
+									],
+									"uv_size": [
+										8,
+										8
+									],
+									"material_instance": "blend"
+								},
+								"up": {
+									"uv": [
+										16,
+										16
+									],
+									"uv_size": [
+										-8,
+										-8
+									],
+									"material_instance": "blend"
+								},
+								"down": {
+									"uv": [
+										16,
+										16
+									],
+									"uv_size": [
+										-8,
+										-8
+									],
+									"material_instance": "blend"
+								}
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}
