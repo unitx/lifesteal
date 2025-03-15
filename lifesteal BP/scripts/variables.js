@@ -29,7 +29,7 @@ export const defaultAddonSetting = {
     dropAllHearts: false,
     heartTransferChance: 100,
     campFireRegeneration: false,
-    heartAppleChance: 0.5,
+    heartAppleChance: 0.3,
     recipes: {
         heart: {
             floorCrafting: false,
@@ -502,5 +502,3 @@ export const formData = {
         }
     }
 }
-
-//heart apple rare apple that drops which acts like a heart with some extra effects
