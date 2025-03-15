@@ -69,7 +69,7 @@ async function packageAddon() {
         // Cleanup temp files
         await fs.remove(TEMP_FOLDER);
 
-        console.log(`✅ Successfully created: ${mcaddonPath}`);
+        console.log(`Successfully created: ${mcaddonPath}`);
     } catch (error) {
         console.error("Error during packaging:", error);
     }

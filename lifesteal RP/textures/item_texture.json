@@ -10,6 +10,11 @@
 			"textures": [
 				"textures/items/heart"
 			]
+		},
+		"heart_apple": {
+			"textures": [
+				"textures/items/heart_apple"
+			]
 		}
 	}
 }

@@ -197,6 +197,19 @@ Mc.world.beforeEvents.worldInitialize.subscribe((eventData) => {
             setPlayersHealth({ player: data.source, hearts: 1, withdraw: false, removeItem: { typeId: "unitx:heart", amount: 1 } })
         }
     })
+    eventData.itemComponentRegistry.registerCustomComponent("unitx:heart_apple", {
+        onCompleteUse(data) {
+            if (data.source.typeId !== "minecraft:player") return
+            let level = 0
+            for (const effect of data.source.getEffects()){
+                if(effect.typeId!=="health_boost") continue
+                level = effect.amplifier
+                level++
+                break
+            }
+            data.source.addEffect("health_boost",6000,{amplifier:level})
+        }
+    })
     eventData.blockComponentRegistry.registerCustomComponent("unitx:break_beacon", {
         onPlayerDestroy(data) {
             let sound = true
@@ -241,6 +254,17 @@ Mc.world.afterEvents.entityHurt.subscribe((eventData) => {
     if (getAddonSetting("lifestealDamageScaled") === true) damage = damage * (stealAmount / 10)
     else damage = stealAmount
     regenHealth(damagingEntity, damage)
+})
+Mc.world.afterEvents.playerBreakBlock.subscribe((eventData)=>{
+    if(!eventData.brokenBlockPermutation.matches("minecraft:oak_leaves")&&!eventData.brokenBlockPermutation.matches("minecraft:dark_oak_leaves")) return
+  if(eventData.player.getGameMode()==="creative") return
+  if(Mc.world.gameRules.doTileDrops===false) return
+  if(eventData.itemStackBeforeBreak.typeId==="minecraft:shears") return
+  let enc = eventData.itemStackBeforeBreak.getComponent("minecraft:enchantable")
+  if(enc!==undefined){
+  if(enc.hasEnchantment("silk_touch")) return
+  }
+    if((Math.random() * (100 - 0.1) + 0.1)<=getAddonSetting("heartAppleChance")) eventData.dimension.spawnItem(new Mc.ItemStack("unitx:heart_apple",1),{x:eventData.block.location.x+0.5,y:eventData.block.location.y+0.5,z:eventData.block.location.z+0.5})
 })
 
 function tryEnchantmentOperation(){
@@ -570,7 +594,6 @@ export function setPlayersHealth({ player, hearts, withdraw = false, removeItem 
         newHealth = newHealth * 2
     }
     else {
-        Mc.world.sendMessage(`${max}`)
         if (removeItem !== undefined) {
             if (removeItems(player, removeItem.typeId, removeItem.amount) === false) return
             newHealth = Math.floor(max / 2) + hearts

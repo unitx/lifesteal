@@ -1,0 +1,32 @@
+{
+	"format_version": "1.21.40",
+	"minecraft:item": {
+		"description": {
+			"identifier": "unitx:heart_apple"
+		},
+		"components": {
+			"minecraft:icon": "heart_apple",
+			"minecraft:display_name": {
+				"value": "Hearty apple"
+			},
+			"minecraft:tags": {
+				"tags": [
+				  "minecraft:is_food"
+				]
+			  },
+			  "minecraft:use_animation": "eat",
+			  "minecraft:use_modifiers": {
+				"use_duration": 1.6,
+				"movement_modifier": 0.35
+			  },
+			  "minecraft:food": {
+				"nutrition": 4,
+				"saturation_modifier": 0.3
+			  },
+			"minecraft:max_stack_size": 64,
+			"minecraft:custom_components": [
+				"unitx:heart_apple"
+			]
+		}
+	}
+}

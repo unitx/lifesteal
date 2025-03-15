@@ -29,6 +29,7 @@ export const defaultAddonSetting = {
     dropAllHearts: false,
     heartTransferChance: 100,
     campFireRegeneration: false,
+    heartAppleChance: 0.5,
     recipes: {
         heart: {
             floorCrafting: false,
@@ -224,6 +225,12 @@ export const formData = {
                 placement: 8, name: "Hearts per lifesteal level", min: 0.25, max: 10, defaultValue: "healthStealAmountPerLevel", step: 0.25, id: "slider",
                 action: ({ response }) => {
                     Mc.world.setDynamicProperty("healthStealAmountPerLevel", response)
+                }
+            },
+            {
+                placement: 11, name: "Hearty apple drop chance", min: 0.1, max: 100, defaultValue: "heartAppleChance", step: 0.1, id: "slider",
+                action: ({ response }) => {
+                    Mc.world.setDynamicProperty("heartAppleChance", response)
                 }
             },
         ],
