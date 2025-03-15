@@ -6,61 +6,16 @@ import {
 } from "./variables.js"
 let updateState = {
     possibleCraftingItems: undefined,
-    campFireRegeneration: undefined
+    campFireRegeneration: undefined,
+    lifeStealEnchantment: undefined
 }
-
 
 export function updateGameState({ state, value }) { updateState[state] = value }
 let encBooks = []
 let oneSecondTimer = 0
 const dimensions = ["overworld", "nether", "the_end"]
+
 Mc.system.runInterval(() => {
-    if (getAddonSetting("lifestealEnchantment") === true) {
-        for (let i = encBooks.length - 1; i >= 0; i--) {
-            let entityBook = Mc.world.getEntity(encBooks[i]);
-            if (!entityBook?.isOnGround) continue;
-            entityBook.setDynamicProperty("lifesteal_enchantment", undefined);
-            encBooks.splice(i, 1);
-            entityBook.dimension.getEntities({
-                maxDistance: 1, closest: 1, type: "minecraft:item", location: entityBook.location, minDistance: 0.001
-            }).forEach(item => {
-                let component = item.getComponent('item')?.itemStack;
-                if (!component || component.isStackable) return;
-
-                let com = entityBook.getComponent("item")?.itemStack;
-                if (!com) return;
-
-                let nextLevel = {
-                    "unitx:lifesteal1": "unitx:lifesteal2",
-                    "unitx:lifesteal2": "unitx:lifesteal3"
-                }[com.typeId];
-
-                if (nextLevel && com.typeId === component.typeId) {
-                    item.dimension.spawnItem(new Mc.ItemStack(nextLevel, 1), item.location).clearVelocity();
-                    item.kill();
-                    entityBook.kill();
-                    return;
-                }
-                if (!component.typeId.includes('axe')) return;
-                let bookLevel = { "unitx:lifesteal1": 1, "unitx:lifesteal2": 2, "unitx:lifesteal3": 3 }[com.typeId] || 0;
-                let currentLevel = component.getDynamicProperty("lifesteal") || 0;
-                if (bookLevel <= currentLevel) return;
-                currentLevel = bookLevel === currentLevel ? currentLevel + 1 : bookLevel;
-                if (currentLevel >= 4) return;
-                let levelSyntax = ["", "I", "II", "III"][currentLevel];
-                component.setDynamicProperty("lifesteal", currentLevel);
-                component.setLore([`§r§7Lifesteal ${levelSyntax}`]);
-                item.dimension.spawnItem(component, item.location).clearVelocity();
-                item.kill();
-                entityBook.kill();
-            });
-        }
-        for (const entity of Mc.world.getDimension('overworld').getEntities()) {
-            if (entity.typeId === "minecraft:item" && entity.getDynamicProperty("lifesteal_enchantment") && entity.isOnGround) {
-                entity.setDynamicProperty("lifesteal_enchantment", undefined);
-            }
-        }
-    }
     for (const player of Mc.world.getPlayers({ tags: [banTag] })) {
         if (Mc.world.getDynamicPropertyIds().includes(banId + player.name)) player.runCommand(`kick ${player.name} §cYou have lost your last life, You are banned!`)
         player.removeTag(banTag)
@@ -91,12 +46,17 @@ Mc.system.runInterval(() => {
                 state = getAddonSetting("campFireRegeneration")
                 updateState[key] = state
             }
+            else if (key === "lifeStealEnchantment") {
+                state = getAddonSetting("lifestealEnchantment")
+                updateState[key] = state
+            }
 
             if (state === undefined) updateState[key] = false
         }
         else if (state === true) {
             if (oneSecondTimer === 20) {
                 if (key === "possibleCraftingItems") tryToCraftItem()
+                    else if (key === "lifeStealEnchantment") tryEnchantmentOperation()
                 else if (key === "campFireRegeneration") {
                     for (const player of Mc.world.getPlayers()) {
                         if (player.dimension.containsBlock(new Mc.BlockVolume({ x: player.location.x - 3, y: player.location.y - 3, z: player.location.z - 3 }, { x: player.location.x + 3, y: player.location.y + 3, z: player.location.z + 3 }), { includeTypes: ["minecraft:campfire", "minecraft:soul_campfire"] }, true) === true) {
@@ -283,6 +243,52 @@ Mc.world.afterEvents.entityHurt.subscribe((eventData) => {
     regenHealth(damagingEntity, damage)
 })
 
+function tryEnchantmentOperation(){
+        for (let i = encBooks.length - 1; i >= 0; i--) {
+            let entityBook = Mc.world.getEntity(encBooks[i]);
+            if (!entityBook?.isOnGround) continue;
+            entityBook.setDynamicProperty("lifesteal_enchantment", undefined);
+            encBooks.splice(i, 1);
+            entityBook.dimension.getEntities({
+                maxDistance: 1, closest: 1, type: "minecraft:item", location: entityBook.location, minDistance: 0.001
+            }).forEach(item => {
+                let component = item.getComponent('item')?.itemStack;
+                if (!component || component.isStackable) return;
+
+                let com = entityBook.getComponent("item")?.itemStack;
+                if (!com) return;
+
+                let nextLevel = {
+                    "unitx:lifesteal1": "unitx:lifesteal2",
+                    "unitx:lifesteal2": "unitx:lifesteal3"
+                }[com.typeId];
+
+                if (nextLevel && com.typeId === component.typeId) {
+                    item.dimension.spawnItem(new Mc.ItemStack(nextLevel, 1), item.location).clearVelocity();
+                    item.kill();
+                    entityBook.kill();
+                    return;
+                }
+                if (!component.typeId.includes('axe')) return;
+                let bookLevel = { "unitx:lifesteal1": 1, "unitx:lifesteal2": 2, "unitx:lifesteal3": 3 }[com.typeId] || 0;
+                let currentLevel = component.getDynamicProperty("lifesteal") || 0;
+                if (bookLevel <= currentLevel) return;
+                currentLevel = bookLevel === currentLevel ? currentLevel + 1 : bookLevel;
+                if (currentLevel >= 4) return;
+                let levelSyntax = ["", "I", "II", "III"][currentLevel];
+                component.setDynamicProperty("lifesteal", currentLevel);
+                component.setLore([`§r§7Lifesteal ${levelSyntax}`]);
+                item.dimension.spawnItem(component, item.location).clearVelocity();
+                item.kill();
+                entityBook.kill();
+            });
+        }
+        for (const entity of Mc.world.getDimension('overworld').getEntities()) {
+            if (entity.typeId === "minecraft:item" && entity.getDynamicProperty("lifesteal_enchantment") && entity.isOnGround) {
+                entity.setDynamicProperty("lifesteal_enchantment", undefined);
+            }
+        }
+}
 function tryToCraftItem() {
     for (const dim of dimensions) {
         for (const entity of Mc.world.getDimension(dim).getEntities({ tags: [processingCraftingItem] })) {

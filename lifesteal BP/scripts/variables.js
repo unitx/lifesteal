@@ -173,6 +173,7 @@ export const formData = {
                 placement: 5, name: "Enable lifesteal enchantment", defaultValue: "lifestealEnchantment", id: "toggle",
                 action: ({ response }) => {
                     Mc.world.setDynamicProperty("lifestealEnchantment", response)
+                    updateGameState({ state: "lifeStealEnchantment", value: undefined })
                 }
             },
             {
