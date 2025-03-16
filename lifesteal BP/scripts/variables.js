@@ -92,9 +92,10 @@ export const formData = {
                 id: "textField",
                 action: ({ player, response, admin }) => {
                     let banned_players = Mc.world.getDynamicPropertyIds()
-                    if (!banned_players.includes("banned:" + response)) player.sendMessage(`§cNo banned players with the name §7${response} §cfound!`)
+                    if (!banned_players.includes(banId + response)) player.sendMessage(`§cNo banned players with the name §7${response} §cfound!`)
                     else {
                         if (admin === undefined||admin===false) if (removeItems(player, "unitx:revive_soul", 1) === false) return
+                        Mc.world.setDynamicProperty((banId + response),undefined)
                         Mc.world.sendMessage(`§a${response} §7has been Unbanned`)
                         Mc.world.getAllPlayers().forEach(player => { player.playSound("ambient.weather.thunder") })
                     }
@@ -134,18 +135,18 @@ export const formData = {
         type: "actionFormData",
         title: "Menu",
         buttons: [
-            { placement: 0, name: "Settings", texture: "textures/items/book_writable", action: (player, admin) => openForm({ player: player, formKey: "mainSettingsMain", admin: admin }) },
-            { placement: 1, name: "Reviving", texture: "textures/blocks/deadbush", action: (player, admin) => openForm({ player: player, formKey: "revivingReviveMenu", admin: admin }) },
-            { placement: 2, name: "Unbaning", texture: "textures/blocks/barrier", action: (player, admin) => openForm({ player: player, formKey: "unbanningReviveMenu", admin: admin }) },
-            { placement: 3, name: "Credits", texture: "textures/blocks/ender_chest_front", action: (player, admin) => openForm({ player: player, formKey: "mainSettingsCredits", admin: admin }) },
-            { placement: 4, name: "Extras", texture: "textures/items/cake", action: (player, admin) => openForm({ player: player, formKey: "mainSettingsExtra", admin: admin }) },
-            { placement: 5, name: "Custom recipes", texture: "textures/blocks/crafting_table_front", action: (player, admin) => openForm({ player: player, formKey: "mainRecipeMenu", admin: admin }) },
+            { placement: 0, name: "Main settings", texture: "textures/items/book_writable", action: (player, admin) => openForm({ player: player, formKey: "mainSettingsMain", admin: admin }) },
+            { placement: 1, name: "Extras settings", texture: "textures/items/cake", action: (player, admin) => openForm({ player: player, formKey: "mainSettingsExtra", admin: admin }) },
+            { placement: 2, name: "Custom recipes", texture: "textures/blocks/crafting_table_front", action: (player, admin) => openForm({ player: player, formKey: "mainRecipeMenu", admin: admin }) },
+            { placement: 3, name: "Unbaning", texture: "textures/blocks/barrier", action: (player, admin) => openForm({ player: player, formKey: "unbanningReviveMenu", admin: admin }) },
+            { placement: 4, name: "Reviving", texture: "textures/blocks/deadbush", action: (player, admin) => openForm({ player: player, formKey: "revivingReviveMenu", admin: admin }) },
+            { placement: 5, name: "Credits", texture: "textures/blocks/ender_chest_front", action: (player, admin) => openForm({ player: player, formKey: "mainSettingsCredits", admin: admin }) },
         ]
     },
     mainSettingsCredits: {
         type: "actionFormData",
         title: "Credits",
-        body: "§7Made by §cUnitX\n\n§7Need help? §7Join my §9Discord\n§7https://discord.gg/krRXAdddgk\n\n§7Need a tutorial/info on settings? \n§cVist my youtube §7https://www.youtube.com/channel/UCUKB2Klf2Nkfi8reaxmdo0w",
+        body: "§7Made by §cUnitX\n\n§7Need help? §7Join my §9Discord\n§7https://discord.gg/krRXAdddgk\n\n§7Need a more help with the pack? \n§cVist the wiki §7https://github.com/unitx/lifesteal/wiki",
         buttons: [
             { name: "§cClose", action: ({ }) => { return } },
         ]
@@ -224,13 +225,13 @@ export const formData = {
                 }
             },
             {
-                placement: 7, name: "Lifesteal enchantment change", min: 1, max: 100, defaultValue: "healthStealChance", step: 1, id: "slider",
+                placement: 7, name: "Lifesteal enchantment chance", min: 1, max: 100, defaultValue: "healthStealChance", step: 1, id: "slider",
                 action: ({ response }) => {
                     Mc.world.setDynamicProperty("healthStealChance", response)
                 }
             },
             {
-                placement: 8, name: "Hearts per lifesteal level", min: 0.25, max: 10, defaultValue: "healthStealAmountPerLevel", step: 0.25, id: "slider",
+                placement: 8, name: "Hearts per lifesteal enchantment level", min: 0.25, max: 10, defaultValue: "healthStealAmountPerLevel", step: 0.25, id: "slider",
                 action: ({ response }) => {
                     Mc.world.setDynamicProperty("healthStealAmountPerLevel", response)
                 }
@@ -527,3 +528,6 @@ export const formData = {
         }
     }
 }
+
+
+//main infomation on curse forge and mcpdle, docs on wiki and extra infomation github wiki

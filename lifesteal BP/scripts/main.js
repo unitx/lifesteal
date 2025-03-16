@@ -17,7 +17,10 @@ const dimensions = ["overworld", "nether", "the_end"]
 
 Mc.system.runInterval(() => {
     for (const player of Mc.world.getPlayers({ tags: [banTag] })) {
-        if (Mc.world.getDynamicPropertyIds().includes(banId + player.name)) player.runCommand(`kick ${player.name} §cYou have lost your last life, You are banned!`)
+        if (Mc.world.getDynamicPropertyIds().includes(banId + player.name)) {
+            player.runCommand(`kick ${player.name} §cYou have lost your last life, You are banned!`)
+            continue
+        }
         player.removeTag(banTag)
         respawn_player(player, undefined, undefined)
     }
@@ -97,32 +100,32 @@ Mc.world.afterEvents.entityDie.subscribe((eventData) => {
     const dropChance = getAddonSetting("heartTransferChance")
     if (dropChance === 0 || chance > dropChance) return
 
-    if (getAddonSetting("dropAllHearts") === true) dieEntity.dimension.spawnItem(new Mc.ItemStack("unitx:heart", healthGain), dieEntity.location).clearVelocity()
+    if (getAddonSetting("dropAllHearts") === true) dieEntity.dimension.spawnItem(new Mc.ItemStack("unitx:heart", healthGain), dieEntity.location)
     else if ((healthGain + (maxHeartsAttackingEntity / 2)) < maxHealth) setPlayersHealth({ player: attacker, hearts: (Math.floor(maxHeartsAttackingEntity / 2) + healthGain) })
     else {
         setPlayersHealth({ player: attacker, hearts: maxHealth, set: false })
-        dieEntity.dimension.spawnItem(new Mc.ItemStack("unitx:heart", maxHealth + healthGain - Math.floor(maxHeartsAttackingEntity / 2)), dieEntity.location).clearVelocity()
+        dieEntity.dimension.spawnItem(new Mc.ItemStack("unitx:heart", maxHealth + healthGain - Math.floor(maxHeartsAttackingEntity / 2)), dieEntity.location)
     }
     function handlePlayerDeath() {
-        if (getAddonSetting("finalDeathAnimation") === true) eventData.deadEntity.dimension.spawnEntity("lightning_bolt", { x: eventData.deadEntity.location.x, y: eventData.deadEntity.location.y + 3, z: eventData.deadEntity.location.z })
-        if (getAddonSetting("dropSouls") === true) eventData.deadEntity.dimension.spawnItem(new Mc.ItemStack("unitx:revive_soul", 1), { x: eventData.deadEntity.location.x, y: eventData.deadEntity.location.y, z: eventData.deadEntity.location.z })
+        if (getAddonSetting("finalDeathAnimation") === true) dieEntity.dimension.spawnEntity("lightning_bolt", { x: dieEntity.location.x, y: dieEntity.location.y + 3, z: dieEntity.location.z })
+        if (getAddonSetting("dropSouls") === true) dieEntity.dimension.spawnItem(new Mc.ItemStack("unitx:revive_soul", 1), { x: dieEntity.location.x, y: dieEntity.location.y, z: dieEntity.location.z })
         const startingHearts = getAddonSetting("respawnHearts")
-        setPlayersHealth({ player: eventData.deadEntity, hearts: startingHearts })
+        setPlayersHealth({ player: dieEntity, hearts: startingHearts })
         const afterLastLife = getAddonSetting("afterLastLife")
         if (afterLastLife === 1) {
-            eventData.deadEntity.addTag(spectoratorTag)
-            eventData.deadEntity.setGameMode("spectator")
+            dieEntity.addTag(spectoratorTag)
+            dieEntity.setGameMode("spectator")
         }
         else if (afterLastLife === 2) {
-            eventData.deadEntity.addTag(banTag)
-            Mc.world.setDynamicProperty(banId + eventData.deadEntity.name, true)
+            dieEntity.addTag(banTag)
+            Mc.world.setDynamicProperty(banId + dieEntity.name, true)
         }
     }
 })
 Mc.world.afterEvents.playerSpawn.subscribe((eventData) => {
     if (eventData.initialSpawn === true) {
         if (eventData.player.hasTag(banTag)) {
-            if (Mc.world.getDynamicPropertyIds().includes(banId + player.name)) return
+            if (Mc.world.getDynamicPropertyIds().includes(banId + eventData.player.name)) return
             respawn_player(eventData.player, undefined, undefined)
         }
         const max = getAddonSetting("maxHealth")
