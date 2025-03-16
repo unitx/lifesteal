@@ -17,6 +17,9 @@ export const defaultAddonSetting = {
     afterLastLife: 1, //nothing:0, spectator:1, ban:2
     dropSouls: true,
     requiredBeaconBaseSize: 4,
+    randomRespawnHearts: false,
+    maxRandomRespawnHearts: 15,
+    minRandomRespawnHearts: 5,
     randomHearts: false,
     maxRandomHearts: 15,
     minRandomHearts: 5,
@@ -91,7 +94,7 @@ export const formData = {
                     let banned_players = Mc.world.getDynamicPropertyIds()
                     if (!banned_players.includes("banned:" + response)) player.sendMessage(`§cNo banned players with the name §7${response} §cfound!`)
                     else {
-                        if (admin === undefined) if (removeItems(player, "unitx:revive_soul", 1) === false) return
+                        if (admin === undefined||admin===false) if (removeItems(player, "unitx:revive_soul", 1) === false) return
                         Mc.world.sendMessage(`§a${response} §7has been Unbanned`)
                         Mc.world.getAllPlayers().forEach(player => { player.playSound("ambient.weather.thunder") })
                     }
@@ -122,7 +125,7 @@ export const formData = {
                 player.sendMessage(`§cNo longer able to find ${response}!`)
                 return
             }
-            if (admin === undefined) if (removeItems(player, "unitx:revive_soul", 1) === false) return
+            if (admin === undefined||admin===false) if (removeItems(player, "unitx:revive_soul", 1) === false) return
             respawn_player(foundPlayer, response[1], "ambient.weather.thunder")
             Mc.world.sendMessage(`§a${response[0]} has been revived!`)
         }
@@ -161,7 +164,7 @@ export const formData = {
             {
                 placement: 3, name: "Lightning strike after final life", defaultValue: "finalDeathAnimation", id: "toggle",
                 action: ({ response }) => {
-                    Mc.world.setDynamicProperty("randomHearts", response)
+                    Mc.world.setDynamicProperty("finalDeathAnimation", response)
                 }
             },
             {
@@ -187,7 +190,12 @@ export const formData = {
                 placement: 10, name: "Campfire regneration", defaultValue: "campFireRegeneration", id: "toggle",
                 action: ({ response }) => {
                     Mc.world.setDynamicProperty("campFireRegeneration", response)
-                    updateGameState({ state: "campFireRegeneration", value: undefined })
+                }
+            },
+            {
+                placement: 12, name: "Enable random respawn hearts", defaultValue: "randomRespawnHearts", id: "toggle",
+                action: ({ response }) => {
+                    Mc.world.setDynamicProperty("randomRespawnHearts", response)
                 }
             },
         ],
@@ -231,6 +239,23 @@ export const formData = {
                 placement: 11, name: "Hearty apple drop chance", min: 0.1, max: 100, defaultValue: "heartAppleChance", step: 0.1, id: "slider",
                 action: ({ response }) => {
                     Mc.world.setDynamicProperty("heartAppleChance", response)
+                }
+            },
+            {
+                placement: 13, name: "Max respawn hearts", min: 1, max: 50, defaultValue: "maxRandomRespawnHearts", step: 1, id: "slider",
+                action: ({ response }) => {
+                    Mc.world.setDynamicProperty("maxRandomRespawnHearts", response)
+                }
+            },
+            {
+                placement: 14, name: "Min respawn hearts", min: 1, max: 50, defaultValue: "minRandomRespawnHearts", step: 1, id: "slider",
+                action: ({ player, response }) => {
+                    let maxHealth = getAddonSetting("maxRandomRespawnHearts")
+                    if (response > maxHealth) {
+                        Mc.world.setDynamicProperty("minRandomRespawnHearts", maxHealth)
+                        player.sendMessage(`§cMaximum hearts can't be lower than Minimum hearts`)
+                    }
+                    else Mc.world.setDynamicProperty("minRandomRespawnHearts", response)
                 }
             },
         ],

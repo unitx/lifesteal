@@ -56,7 +56,7 @@ Mc.system.runInterval(() => {
         else if (state === true) {
             if (oneSecondTimer === 20) {
                 if (key === "possibleCraftingItems") tryToCraftItem()
-                    else if (key === "lifeStealEnchantment") tryEnchantmentOperation()
+                else if (key === "lifeStealEnchantment") tryEnchantmentOperation()
                 else if (key === "campFireRegeneration") {
                     for (const player of Mc.world.getPlayers()) {
                         if (player.dimension.containsBlock(new Mc.BlockVolume({ x: player.location.x - 3, y: player.location.y - 3, z: player.location.z - 3 }, { x: player.location.x + 3, y: player.location.y + 3, z: player.location.z + 3 }), { includeTypes: ["minecraft:campfire", "minecraft:soul_campfire"] }, true) === true) {
@@ -78,42 +78,36 @@ Mc.world.afterEvents.entityDie.subscribe((eventData) => {
     const environmentalDeaths = getAddonSetting("environmentalDeaths")
     if (environmentalDeaths === false && attacker === undefined) return
     if (environmentalDeaths === false && attacker.typeId !== 'minecraft:player') return
-    let max = getPlayersMaxHealth(dieEntity)
+    const maxHeartsDiedEntity = getPlayersMaxHealth(dieEntity)
     const healthLose = getAddonSetting("healthLose")
-    if (Math.floor(max / 2) - healthLose > 0) {
-        if (environmentalDeaths === false && attacker.typeId === "minecraft:player") setPlayersHealth({ player: dieEntity, hearts: Math.floor(max / 2) - healthLose })
-        //dieEntity.triggerEvent("unitx:health" + (Math.floor(max / 2) - healthLose))
-        if (environmentalDeaths === true) setPlayersHealth({ player: dieEntity, hearts: Math.floor(max / 2) - healthLose })
-        //dieEntity.triggerEvent("unitx:health" + (Math.floor(max / 2) - healthLose))
-        if (attacker === undefined) return
-        if (attacker.typeId !== "minecraft:player") return
-        if (dieEntity.nameTag === attacker.nameTag) return
-        max = getPlayersMaxHealth(attacker)
-        const healthGain = getAddonSetting("healthGain")
-        const maxHealth = getAddonSetting("maxHealth")
-        const chance = Math.floor(Math.random() * 100) + 1;
-        const dropChance = getAddonSetting("heartTransferChance")
-        if (dropChance === 0 || chance > dropChance) return
-        if ((healthGain + (max / 2)) <= maxHealth) setPlayersHealth({ player: attacker, hearts: Math.round(healthGain + (max / 2)) })
-        //attacker.triggerEvent("unitx:health" + (Math.round(healthGain + (max / 2))))
-        else {
-            if (getAddonSetting("dropAllHearts") === true) dieEntity.dimension.spawnItem(new Mc.ItemStack("unitx:heart", healthGain), dieEntity.location).clearVelocity()
-            else if ((healthGain + (max / 2)) === maxHealth) setPlayersHealth({ player: attacker, hearts: maxHealth })
-            //attacker.triggerEvent(`unitx:health` + maxHealth)
-            else if ((healthGain + (max / 2)) > maxHealth) {
-                //attacker.triggerEvent(`unitx:health` + maxHealth)
-                setPlayersHealth({ player: attacker, hearts: maxHealth })
-                const health = Math.floor((healthGain + (max / 2)) - maxHealth)
-                dieEntity.dimension.spawnItem(new Mc.ItemStack("unitx:heart", health), dieEntity.location).clearVelocity()
-            }
-        }
+
+    if (Math.floor(maxHeartsDiedEntity / 2) - healthLose > 0) {
+        if (environmentalDeaths === false && attacker.typeId === "minecraft:player") setPlayersHealth({ player: dieEntity, hearts: Math.floor(maxHeartsDiedEntity / 2) - healthLose })
+        else if (environmentalDeaths === true) setPlayersHealth({ player: dieEntity, hearts: Math.floor(maxHeartsDiedEntity / 2) - healthLose })
     }
+    else handlePlayerDeath()
+    if (attacker === undefined) return
+    if (attacker.typeId !== "minecraft:player") return
+    if (dieEntity.nameTag === attacker.nameTag) return
+    const maxHeartsAttackingEntity = getPlayersMaxHealth(attacker)
+    const healthGain = getAddonSetting("healthGain")
+    const maxHealth = getAddonSetting("maxHealth")
+
+    const chance = Math.floor(Math.random() * 100) + 1;
+    const dropChance = getAddonSetting("heartTransferChance")
+    if (dropChance === 0 || chance > dropChance) return
+
+    if (getAddonSetting("dropAllHearts") === true) dieEntity.dimension.spawnItem(new Mc.ItemStack("unitx:heart", healthGain), dieEntity.location).clearVelocity()
+    else if ((healthGain + (maxHeartsAttackingEntity / 2)) < maxHealth) setPlayersHealth({ player: attacker, hearts: (Math.floor(maxHeartsAttackingEntity / 2) + healthGain) })
     else {
+        setPlayersHealth({ player: attacker, hearts: maxHealth, set: false })
+        dieEntity.dimension.spawnItem(new Mc.ItemStack("unitx:heart", maxHealth + healthGain - Math.floor(maxHeartsAttackingEntity / 2)), dieEntity.location).clearVelocity()
+    }
+    function handlePlayerDeath() {
         if (getAddonSetting("finalDeathAnimation") === true) eventData.deadEntity.dimension.spawnEntity("lightning_bolt", { x: eventData.deadEntity.location.x, y: eventData.deadEntity.location.y + 3, z: eventData.deadEntity.location.z })
         if (getAddonSetting("dropSouls") === true) eventData.deadEntity.dimension.spawnItem(new Mc.ItemStack("unitx:revive_soul", 1), { x: eventData.deadEntity.location.x, y: eventData.deadEntity.location.y, z: eventData.deadEntity.location.z })
-        const startingHealth = getAddonSetting("startingHealth")
-        setPlayersHealth({ player: eventData.deadEntity, hearts: startingHealth })
-        //eventData.deadEntity.triggerEvent("unitx:health" + startingHealth)
+        const startingHearts = getAddonSetting("respawnHearts")
+        setPlayersHealth({ player: eventData.deadEntity, hearts: startingHearts })
         const afterLastLife = getAddonSetting("afterLastLife")
         if (afterLastLife === 1) {
             eventData.deadEntity.addTag(spectoratorTag)
@@ -194,20 +188,20 @@ Mc.world.beforeEvents.worldInitialize.subscribe((eventData) => {
     eventData.itemComponentRegistry.registerCustomComponent("unitx:heart", {
         onUse(data) {
             if (data.source.typeId !== "minecraft:player") return
-            setPlayersHealth({ player: data.source, hearts: 1, withdraw: false, removeItem: { typeId: "unitx:heart", amount: 1 } })
+            setPlayersHealth({ player: data.source, hearts: 1, removeItem: { typeId: "unitx:heart", amount: 1 }, set: false })
         }
     })
     eventData.itemComponentRegistry.registerCustomComponent("unitx:heart_apple", {
         onCompleteUse(data) {
             if (data.source.typeId !== "minecraft:player") return
             let level = 0
-            for (const effect of data.source.getEffects()){
-                if(effect.typeId!=="health_boost") continue
+            for (const effect of data.source.getEffects()) {
+                if (effect.typeId !== "health_boost") continue
                 level = effect.amplifier
                 level++
                 break
             }
-            data.source.addEffect("health_boost",6000,{amplifier:level})
+            data.source.addEffect("health_boost", 6000, { amplifier: level })
         }
     })
     eventData.blockComponentRegistry.registerCustomComponent("unitx:break_beacon", {
@@ -255,63 +249,65 @@ Mc.world.afterEvents.entityHurt.subscribe((eventData) => {
     else damage = stealAmount
     regenHealth(damagingEntity, damage)
 })
-Mc.world.afterEvents.playerBreakBlock.subscribe((eventData)=>{
-    if(!eventData.brokenBlockPermutation.matches("minecraft:oak_leaves")&&!eventData.brokenBlockPermutation.matches("minecraft:dark_oak_leaves")) return
-  if(eventData.player.getGameMode()==="creative") return
-  if(Mc.world.gameRules.doTileDrops===false) return
-  if(eventData.itemStackBeforeBreak.typeId==="minecraft:shears") return
-  let enc = eventData.itemStackBeforeBreak.getComponent("minecraft:enchantable")
-  if(enc!==undefined){
-  if(enc.hasEnchantment("silk_touch")) return
-  }
-    if((Math.random() * (100 - 0.1) + 0.1)<=getAddonSetting("heartAppleChance")) eventData.dimension.spawnItem(new Mc.ItemStack("unitx:heart_apple",1),{x:eventData.block.location.x+0.5,y:eventData.block.location.y+0.5,z:eventData.block.location.z+0.5})
+Mc.world.afterEvents.playerBreakBlock.subscribe((eventData) => {
+    if (!eventData.brokenBlockPermutation.matches("minecraft:oak_leaves") && !eventData.brokenBlockPermutation.matches("minecraft:dark_oak_leaves")) return
+    if (eventData.player.getGameMode() === "creative") return
+    if (Mc.world.gameRules.doTileDrops === false) return
+    if (eventData.itemStackBeforeBreak !== undefined) {
+        if (eventData.itemStackBeforeBreak.typeId === "minecraft:shears") return
+        let enc = eventData.itemStackBeforeBreak.getComponent("minecraft:enchantable")
+        if (enc !== undefined) {
+            if (enc.hasEnchantment("silk_touch")) return
+        }
+    }
+    if ((Math.random() * (100 - 0.1) + 0.1) <= getAddonSetting("heartAppleChance")) eventData.dimension.spawnItem(new Mc.ItemStack("unitx:heart_apple", 1), { x: eventData.block.location.x + 0.5, y: eventData.block.location.y + 0.5, z: eventData.block.location.z + 0.5 })
 })
 
-function tryEnchantmentOperation(){
-        for (let i = encBooks.length - 1; i >= 0; i--) {
-            let entityBook = Mc.world.getEntity(encBooks[i]);
-            if (!entityBook?.isOnGround) continue;
-            entityBook.setDynamicProperty("lifesteal_enchantment", undefined);
-            encBooks.splice(i, 1);
-            entityBook.dimension.getEntities({
-                maxDistance: 1, closest: 1, type: "minecraft:item", location: entityBook.location, minDistance: 0.001
-            }).forEach(item => {
-                let component = item.getComponent('item')?.itemStack;
-                if (!component || component.isStackable) return;
+function tryEnchantmentOperation() {
+    for (let i = encBooks.length - 1; i >= 0; i--) {
+        let entityBook = Mc.world.getEntity(encBooks[i]);
+        if (!entityBook?.isOnGround) continue;
+        entityBook.setDynamicProperty("lifesteal_enchantment", undefined);
+        encBooks.splice(i, 1);
+        entityBook.dimension.getEntities({
+            maxDistance: 1, closest: 1, type: "minecraft:item", location: entityBook.location, minDistance: 0.001
+        }).forEach(item => {
+            let component = item.getComponent('item')?.itemStack;
+            if (!component || component.isStackable) return;
 
-                let com = entityBook.getComponent("item")?.itemStack;
-                if (!com) return;
+            let com = entityBook.getComponent("item")?.itemStack;
+            if (!com) return;
 
-                let nextLevel = {
-                    "unitx:lifesteal1": "unitx:lifesteal2",
-                    "unitx:lifesteal2": "unitx:lifesteal3"
-                }[com.typeId];
+            let nextLevel = {
+                "unitx:lifesteal1": "unitx:lifesteal2",
+                "unitx:lifesteal2": "unitx:lifesteal3"
+            }[com.typeId];
 
-                if (nextLevel && com.typeId === component.typeId) {
-                    item.dimension.spawnItem(new Mc.ItemStack(nextLevel, 1), item.location).clearVelocity();
-                    item.kill();
-                    entityBook.kill();
-                    return;
-                }
-                if (!component.typeId.includes('axe')) return;
-                let bookLevel = { "unitx:lifesteal1": 1, "unitx:lifesteal2": 2, "unitx:lifesteal3": 3 }[com.typeId] || 0;
-                let currentLevel = component.getDynamicProperty("lifesteal") || 0;
-                if (bookLevel <= currentLevel) return;
-                currentLevel = bookLevel === currentLevel ? currentLevel + 1 : bookLevel;
-                if (currentLevel >= 4) return;
-                let levelSyntax = ["", "I", "II", "III"][currentLevel];
-                component.setDynamicProperty("lifesteal", currentLevel);
-                component.setLore([`§r§7Lifesteal ${levelSyntax}`]);
-                item.dimension.spawnItem(component, item.location).clearVelocity();
+            if (nextLevel && com.typeId === component.typeId) {
+                item.dimension.spawnItem(new Mc.ItemStack(nextLevel, 1), item.location).clearVelocity();
                 item.kill();
                 entityBook.kill();
-            });
-        }
-        for (const entity of Mc.world.getDimension('overworld').getEntities()) {
-            if (entity.typeId === "minecraft:item" && entity.getDynamicProperty("lifesteal_enchantment") && entity.isOnGround) {
-                entity.setDynamicProperty("lifesteal_enchantment", undefined);
+                return;
             }
+            if (!component.typeId.includes('axe')) return;
+            let bookLevel = { "unitx:lifesteal1": 1, "unitx:lifesteal2": 2, "unitx:lifesteal3": 3 }[com.typeId] || 0;
+            let currentLevel = component.getDynamicProperty("lifesteal") || 0;
+            if (bookLevel <= currentLevel) return;
+            currentLevel = bookLevel === currentLevel ? currentLevel + 1 : bookLevel;
+            if (currentLevel >= 4) return;
+            let levelSyntax = ["", "I", "II", "III"][currentLevel];
+            component.setDynamicProperty("lifesteal", currentLevel);
+            component.setLore([`§r§7Lifesteal ${levelSyntax}`]);
+            item.dimension.spawnItem(component, item.location).clearVelocity();
+            item.kill();
+            entityBook.kill();
+        });
+    }
+    for (const entity of Mc.world.getDimension('overworld').getEntities()) {
+        if (entity.typeId === "minecraft:item" && entity.getDynamicProperty("lifesteal_enchantment") && entity.isOnGround) {
+            entity.setDynamicProperty("lifesteal_enchantment", undefined);
         }
+    }
 }
 function tryToCraftItem() {
     for (const dim of dimensions) {
@@ -389,15 +385,6 @@ function regenHealth(player, amount) {
     if (component.currentValue + amount < max) component.setCurrentValue(component.currentValue + amount)
     else if (component.currentValue !== max) component.resetToMaxValue()
 }
-export function getPlayersMaxHealth(player) {
-    let component = player.getComponent('minecraft:health')
-    if (component === undefined) return 0
-    let health1 = component.currentValue
-    component.resetToMaxValue()
-    let max = component.currentValue
-    component.setCurrentValue(health1)
-    return max
-}
 export function getAddonSetting(id) {
     let value = Mc.world.getDynamicProperty(id);
     if (value === undefined) {
@@ -423,7 +410,14 @@ export function countItems(player, typeId) {
 }
 export function respawn_player(player, health, sound) {
     player.setGameMode("survival")
-    if (health === undefined) health = getAddonSetting("respawnHearts")
+    if (health === undefined) {
+        if (getAddonSetting("randomRespawnHearts") === false) health = getAddonSetting("respawnHearts")
+        else {
+            const min = getAddonSetting("minRandomRespawnHearts")
+            health = Math.floor(Math.random() * (getAddonSetting("maxRandomRespawnHearts") - min+1)) + min
+            Mc.world.sendMessage(`${health} ${getAddonSetting("maxRandomRespawnHearts")} ${min}`)
+        }
+    }
     setPlayersHealth({ player: player, hearts: health })
     if (sound !== undefined) Mc.world.getAllPlayers().forEach(player => { player.playSound(sound) })
     try { player.removeTag("spectorator") } catch (e) { }
@@ -431,7 +425,15 @@ export function respawn_player(player, health, sound) {
     let spawnpoint = player.getSpawnPoint()
     if (spawnpoint === undefined) {
         spawnpoint = Mc.world.getDefaultSpawnLocation()
-        spawnpoint.dimension = Mc.world.getDimension('overworld')
+        spawnpoint.dimension = Mc.world.getDimension("overworld")
+    }
+    if (spawnpoint === undefined) {
+        spawnpoint = { x: 0, y: 320, z: 0, dimension: Mc.world.getDimension("overworld") }
+        player.addEffect("resistance", 200, { amplifier: 20, showParticles: false })
+    }
+    if (spawnpoint.y >= 32000) {
+        spawnpoint.y = 320
+        player.addEffect("resistance", 200, { amplifier: 20, showParticles: false })
     }
     player.teleport({ x: spawnpoint.x, y: spawnpoint.y, z: spawnpoint.z }, { dimension: spawnpoint.dimension });
 }
@@ -579,12 +581,18 @@ export async function openForm({ player, formKey, admin }) {
         }
     }
 }
-export function setPlayersHealth({ player, hearts, withdraw = false, removeItem }) {
+export function getPlayersMaxHealth(player) {
+    let component = player.getComponent('minecraft:health')
+    if (component === undefined) return 0
+    return component.defaultValue
+}
+export function setPlayersHealth({ player, hearts, withdraw = false, removeItem, set = true }) {
+    const allowdMax = getAddonSetting("maxHealth")
     const max = getPlayersMaxHealth(player)
-    let newHealth=0
+    let newHealth = 0
     if (withdraw === true) {
         if (hearts >= (max / 2)) {
-            player.sendMessage(`§cInsufficient amount of hearts gain more hearts to withdraw §7${hearts} §chearts!`)
+            player.sendMessage(`§cInsufficient amount of hearts gain more hearts to withdraw §7${hearts} §hearts!`)
             return
         }
         newHealth = Math.floor(max / 2) - hearts
@@ -594,16 +602,18 @@ export function setPlayersHealth({ player, hearts, withdraw = false, removeItem 
         newHealth = newHealth * 2
     }
     else {
+        if (set === true) newHealth = hearts
+        else newHealth = Math.floor(max / 2) + hearts
+        if (newHealth > allowdMax) {
+            player.triggerEvent("unitx:health" + allowdMax)
+            player.sendMessage(`§cMax health reached!`)
+            return
+        }
         if (removeItem !== undefined) {
             if (removeItems(player, removeItem.typeId, removeItem.amount) === false) return
-            newHealth = Math.floor(max / 2) + hearts
-            if (newHealth > max) {
-                player.sendMessage(`§cMax health reached!`)
-                return
-            }
             player.triggerEvent("unitx:health" + newHealth)
         }
-        else player.triggerEvent("unitx:health" + hearts)
+        else player.triggerEvent("unitx:health" + newHealth)
         newHealth = newHealth * 2
     }
     let maxHealth = Mc.world.scoreboard.getObjective("lifesteal:maxhealth")
