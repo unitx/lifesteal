@@ -3,7 +3,10 @@ import { getAddonSetting, respawn_player, removeItems, openForm, getPlayersMaxHe
 
 export const banId = "unitxLifestealBan:"
 export const banTag = "unitxLifesteal:banned"
+export const spectoratorId = "unitxLifestealSpectorator:"
 export const spectoratorTag = "unitxLifesteal:spectorator"
+export const changeHealthId = "unitxLifestealChangehealth:"
+
 export const recivedStartingHealthTag = "unitxLifesteal:startingHealth"
 export const processingCraftingItem = "unitxLifesteal:validCraftingItemProcessing"
 export const validCraftingItem = "unitxLifesteal:validCraftingItem"
@@ -33,6 +36,7 @@ export const defaultAddonSetting = {
     heartTransferChance: 100,
     campFireRegeneration: false,
     heartAppleChance: 0.3,
+    //developerOptions: false,
     recipes: {
         heart: {
             floorCrafting: false,
@@ -74,76 +78,18 @@ export const beaconBaseBlocks = [
     "minecraft:netherite_block"
 ]
 export const formData = {
-    mainReviveMenu: {
-        type: "actionFormData",
-        title: "Reviving!",
-        buttons: [
-            { placement: 0, name: "Reviving", texture: "textures/blocks/deadbush", action: (player, admin) => openForm({ player: player, formKey: "revivingReviveMenu", admin: admin }) },
-            { placement: 1, name: "Unbaning", texture: "textures/blocks/barrier", action: (player, admin) => openForm({ player: player, formKey: "unbanningReviveMenu", admin: admin }) }
-        ]
-    },
-    unbanningReviveMenu: {
-        type: "modalFormData",
-        title: "Unbanning players",
-        textField: [
-            {
-                placement: 0,
-                name: "Players name:",
-                id: "textField",
-                action: ({ player, response, admin }) => {
-                    let banned_players = Mc.world.getDynamicPropertyIds()
-                    if (!banned_players.includes(banId + response)) player.sendMessage(`§cNo banned players with the name §7${response} §cfound!`)
-                    else {
-                        if (admin === undefined||admin===false) if (removeItems(player, "unitx:revive_soul", 1) === false) return
-                        Mc.world.setDynamicProperty((banId + response),undefined)
-                        Mc.world.sendMessage(`§a${response} §7has been Unbanned`)
-                        Mc.world.getAllPlayers().forEach(player => { player.playSound("ambient.weather.thunder") })
-                    }
-                }
-            }
-        ]
-    },
-    revivingReviveMenu: {
-        type: "modalFormData",
-        title: "Reviving",
-        dropdown: [
-            {
-                placement: 0,
-                name: "Player to revive",
-                list: "onlinePlayers",
-                id: "dropDown"
-            }
-        ],
-        slider: [
-            {
-                placement: 1, admin: true, name: "Hearts", min: 1, max: 50, defaultValue: "respawnHearts", step: 1, id: "slider",
-            }
-        ],
-        action: ({ player, response, admin }) => {
-            let players = Mc.world.getAllPlayers()
-            let foundPlayer = players.find(p => p.name === response[0]);
-            if (foundPlayer === undefined) {
-                player.sendMessage(`§cNo longer able to find ${response}!`)
-                return
-            }
-            if (admin === undefined||admin===false) if (removeItems(player, "unitx:revive_soul", 1) === false) return
-            respawn_player(foundPlayer, response[1], "ambient.weather.thunder")
-            Mc.world.sendMessage(`§a${response[0]} has been revived!`)
-        }
-    },
-    mainSettingsMenu: {
+    mainSettingsMenu: {//button list
         type: "actionFormData",
         title: "Menu",
         buttons: [
             { placement: 0, name: "Main settings", texture: "textures/items/book_writable", action: (player, admin) => openForm({ player: player, formKey: "mainSettingsMain", admin: admin }) },
             { placement: 1, name: "Extras settings", texture: "textures/items/cake", action: (player, admin) => openForm({ player: player, formKey: "mainSettingsExtra", admin: admin }) },
             { placement: 2, name: "Custom recipes", texture: "textures/blocks/crafting_table_front", action: (player, admin) => openForm({ player: player, formKey: "mainRecipeMenu", admin: admin }) },
-            { placement: 3, name: "Unbaning", texture: "textures/blocks/barrier", action: (player, admin) => openForm({ player: player, formKey: "unbanningReviveMenu", admin: admin }) },
-            { placement: 4, name: "Reviving", texture: "textures/blocks/deadbush", action: (player, admin) => openForm({ player: player, formKey: "revivingReviveMenu", admin: admin }) },
-            { placement: 5, name: "Credits", texture: "textures/blocks/ender_chest_front", action: (player, admin) => openForm({ player: player, formKey: "mainSettingsCredits", admin: admin }) },
+            { placement: 3, name: "Revive menu", texture: "textures/blocks/revive_beacon", action: (player, admin) => openForm({ player: player, formKey: "reviveTypeMenu", admin: admin }) },
+            { placement: 4, name: "Credits", texture: "textures/blocks/ender_chest_front", action: (player, admin) => openForm({ player: player, formKey: "mainSettingsCredits", admin: admin }) },
         ]
     },
-    mainSettingsCredits: {
+    mainSettingsCredits: {//text
         type: "actionFormData",
         title: "Credits",
         body: "§7Made by §cUnitX\n\n§7Need help? §7Join my §9Discord\n§7https://discord.gg/krRXAdddgk\n\n§7Need a more help with the pack? \n§cVist the wiki §7https://github.com/unitx/lifesteal/wiki",
@@ -152,176 +98,183 @@ export const formData = {
         ]
 
     },
-    mainSettingsExtra: {
+    mainSettingsExtra: {//data input
         type: "modalFormData",
         title: "Extra settings",
         toggle: [
             {
                 placement: 0, name: "Enable random starting hearts", defaultValue: "randomHearts", id: "toggle",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("randomHearts", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("randomHearts", formDataResponse.inputData)
                 }
             },
             {
                 placement: 3, name: "Lightning strike after final life", defaultValue: "finalDeathAnimation", id: "toggle",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("finalDeathAnimation", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("finalDeathAnimation", formDataResponse.inputData)
                 }
             },
             {
                 placement: 4, name: "Drop all hearts instead of receiving them", defaultValue: "dropAllHearts", id: "toggle",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("dropAllHearts", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("dropAllHearts", formDataResponse.inputData)
                 }
             },
             {
                 placement: 5, name: "Enable lifesteal enchantment", defaultValue: "lifestealEnchantment", id: "toggle",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("lifestealEnchantment", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("lifestealEnchantment", formDataResponse.inputData)
                     updateGameState({ state: "lifeStealEnchantment", value: undefined })
                 }
             },
             {
                 placement: 6, name: "Scale lifesteal enchantment by damage", defaultValue: "lifestealDamageScaled", id: "toggle",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("lifestealDamageScaled", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("lifestealDamageScaled", formDataResponse.inputData)
                 }
             },
             {
                 placement: 10, name: "Campfire regneration", defaultValue: "campFireRegeneration", id: "toggle",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("campFireRegeneration", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("campFireRegeneration", formDataResponse.inputData)
+                    updateGameState({ state: "campFireRegeneration", value: undefined })
                 }
             },
             {
                 placement: 12, name: "Enable random respawn hearts", defaultValue: "randomRespawnHearts", id: "toggle",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("randomRespawnHearts", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("randomRespawnHearts", formDataResponse.inputData)
                 }
             },
+            // {
+            //    placement: 15, name: "Enable developer options", defaultValue: "developerOptions", id: "toggle",
+            //    action: ({ formDataResponse }) => {
+            //         Mc.world.setDynamicProperty("developerOptionss", formDataResponse.inputData)
+            //     }
+            // },
         ],
         slider: [
             {
                 placement: 1, name: "Max starting hearts", min: 1, max: 50, defaultValue: "maxRandomHearts", step: 1, id: "slider",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("maxRandomHearts", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("maxRandomHearts", formDataResponse.inputData)
                 }
             },
             {
                 placement: 2, name: "Min starting hearts", min: 1, max: 50, defaultValue: "minRandomHearts", step: 1, id: "slider",
-                action: ({ player, response }) => {
+                action: ({ player, formDataResponse }) => {
                     let maxHealth = getAddonSetting("maxRandomHearts")
-                    if (response > maxHealth) {
+                    if (formDataResponse.inputData > maxHealth) {
                         Mc.world.setDynamicProperty("minRandomHearts", maxHealth)
                         player.sendMessage(`§cMaximum hearts can't be lower than Minimum hearts`)
                     }
-                    else Mc.world.setDynamicProperty("minRandomHearts", response)
+                    else Mc.world.setDynamicProperty("minRandomHearts", formDataResponse.inputData)
                 }
             },
             {
                 placement: 9, name: "Chance of dropping/transferring hearts on death", min: 0, max: 100, defaultValue: "heartTransferChance", step: 1, id: "slider",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("heartTransferChance", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("heartTransferChance", formDataResponse.inputData)
                 }
             },
             {
                 placement: 7, name: "Lifesteal enchantment chance", min: 1, max: 100, defaultValue: "healthStealChance", step: 1, id: "slider",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("healthStealChance", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("healthStealChance", formDataResponse.inputData)
                 }
             },
             {
                 placement: 8, name: "Hearts per lifesteal enchantment level", min: 0.25, max: 10, defaultValue: "healthStealAmountPerLevel", step: 0.25, id: "slider",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("healthStealAmountPerLevel", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("healthStealAmountPerLevel", formDataResponse.inputData)
                 }
             },
             {
                 placement: 11, name: "Hearty apple drop chance", min: 0.1, max: 100, defaultValue: "heartAppleChance", step: 0.1, id: "slider",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("heartAppleChance", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("heartAppleChance", formDataResponse.inputData)
                 }
             },
             {
                 placement: 13, name: "Max respawn hearts", min: 1, max: 50, defaultValue: "maxRandomRespawnHearts", step: 1, id: "slider",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("maxRandomRespawnHearts", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("maxRandomRespawnHearts", formDataResponse.inputData)
                 }
             },
             {
                 placement: 14, name: "Min respawn hearts", min: 1, max: 50, defaultValue: "minRandomRespawnHearts", step: 1, id: "slider",
-                action: ({ player, response }) => {
+                action: ({ player, formDataResponse }) => {
                     let maxHealth = getAddonSetting("maxRandomRespawnHearts")
-                    if (response > maxHealth) {
+                    if (formDataResponse.inputData > maxHealth) {
                         Mc.world.setDynamicProperty("minRandomRespawnHearts", maxHealth)
                         player.sendMessage(`§cMaximum hearts can't be lower than Minimum hearts`)
                     }
-                    else Mc.world.setDynamicProperty("minRandomRespawnHearts", response)
+                    else Mc.world.setDynamicProperty("minRandomRespawnHearts", formDataResponse.inputData)
                 }
             },
         ],
     },
-    mainSettingsMain: {
+    mainSettingsMain: {//data input
         type: "modalFormData",
         title: "Main settings",
         toggle: [
             {
                 placement: 4, name: "You lose hearts anytime you die", defaultValue: "environmentalDeaths", id: "toggle",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("environmentalDeaths", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("environmentalDeaths", formDataResponse.inputData)
                 }
             },
             {
                 placement: 5, name: "Bottled souls drop on last life", defaultValue: "dropSouls", id: "toggle",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("dropSouls", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("dropSouls", formDataResponse.inputData)
                 }
             },
             {
                 placement: 9, name: "Health naturally regenerates", defaultValue: "naturalregeneration", id: "toggle",
-                action: ({ response }) => {
-                    Mc.world.gameRules.naturalRegeneration = response
+                action: ({ formDataResponse }) => {
+                    Mc.world.gameRules.naturalRegeneration = formDataResponse.inputData
                 }
             }
         ],
         slider: [
             {
                 placement: 0, name: "Starting hearts", min: 1, max: 50, defaultValue: "startingHealth", step: 1, id: "slider",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("startingHealth", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("startingHealth", formDataResponse.inputData)
                 }
             },
             {
                 placement: 1, name: "Max hearts", min: 1, max: 50, defaultValue: "maxHealth", step: 1, id: "slider",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("maxHealth", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("maxHealth", formDataResponse.inputData)
                     for (const player of Mc.world.getAllPlayers()) {
-                        if (getPlayersMaxHealth(player) > response) player.triggerEvent("unitx:health" + response)
+                        if (getPlayersMaxHealth(player) > formDataResponse.inputData) player.triggerEvent("unitx:health" + formDataResponse.inputData)
                     }
                 }
             },
             {
                 placement: 2, name: "Hearts gained when you kill", min: 0, max: 25, defaultValue: "healthGain", step: 1, id: "slider",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("healthGain", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("healthGain", formDataResponse.inputData)
                 }
             },
             {
                 placement: 3, name: "Hearts lost when you die", min: 0, max: 25, defaultValue: "healthLose", step: 1, id: "slider",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("healthLose", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("healthLose", formDataResponse.inputData)
                 }
             },
             {
                 placement: 6, name: "Required revive beacon base size", min: 0, max: 4, defaultValue: "requiredBeaconBaseSize", step: 1, id: "slider",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("requiredBeaconBaseSize", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("requiredBeaconBaseSize", formDataResponse.inputData)
                 }
             },
             {
                 placement: 7, name: "Hearts given after being revived/unbanned", min: 1, max: 50, defaultValue: "respawnHearts", step: 1, id: "slider",
-                action: ({ response }) => {
-                    Mc.world.setDynamicProperty("respawnHearts", response)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("respawnHearts", formDataResponse.inputData)
                 }
             }
         ],
@@ -331,37 +284,33 @@ export const formData = {
                 name: "When you lose your last heart",
                 list: ["nothing", "spectator", "ban"],
                 defaultValue: "afterLastLife", id: "dropDown",
-                action: ({ index }) => {
-                    Mc.world.setDynamicProperty("afterLastLife", index)
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("afterLastLife", formDataResponse.inputData)
                 }
             }
         ]
     },
-    withdrawHearts: {
+    withdrawHearts: {//data input
         type: "modalFormData",
         title: "Menu",
         slider: [
             {
                 placement: 0, name: "Amount", min: 1, max: "playersHealth", defaultValue: 1, step: 1, id: "slider",
-                action: ({ player, response, admin }) => {
-                    setPlayersHealth({ player: player, hearts: response, withdraw: true })
-                    //const max = admin
-                    // player.triggerEvent("unitx:health" + (Math.floor(max / 2) - response))
-                    // player.runCommand(`give @s unitx:heart ${response}`)
-                    // player.sendMessage(`§aYou have withdrawn §7${response} §ahearts`)
+                action: ({ player, formDataResponse }) => {
+                    setPlayersHealth({ player: player, hearts: formDataResponse.inputData, withdraw: true })
                 }
             }
         ]
     },
-    mainRecipeMenu: {
+    mainRecipeMenu: {//button list
         type: "actionFormData",
         title: "Recipes",
         buttons: [
             { placement: 0, name: "Heart recipe", texture: "textures/items/heart", action: (player, admin) => openForm({ player: player, formKey: "heartRecipe", admin: admin }) },
-            { placement: 1, name: "Revive beacon recipe", texture: "textures/items/unitx_beacon", action: (player, admin) => openForm({ player: player, formKey: "beaconRecipe", admin: admin }) }
+            { placement: 1, name: "Revive beacon recipe", texture: "textures/blocks/revive_beacon", action: (player, admin) => openForm({ player: player, formKey: "beaconRecipe", admin: admin }) }
         ]
     },
-    heartRecipe: {
+    heartRecipe: {//data input
         type: "modalFormData",
         title: "Heart recipe",
         toggle: [
@@ -434,17 +383,17 @@ export const formData = {
                 id: "textField"
             }
         ],
-        action: ({ response }) => {
+        action: ({ formDataResponse }) => {
             const recipes = getAddonSetting("recipes")
-            for (let i = 1; i < response.length; i++) {
-                recipes["heart"].ingredients[i - 1] = response[i]
+            for (let i = 1; i < formDataResponse.length; i++) {
+                recipes["heart"].ingredients[i - 1] = formDataResponse[i].inputData
             }
-            recipes["heart"].floorCrafting = response[0]
+            recipes["heart"].floorCrafting = formDataResponse[0].inputData
             Mc.world.setDynamicProperty("recipes", JSON.stringify(recipes))
             updateGameState({ state: "possibleCraftingItems", value: undefined })
         }
     },
-    beaconRecipe: {
+    beaconRecipe: {//data input
         type: "modalFormData",
         title: "Revive beacon recipe",
         toggle: [
@@ -517,15 +466,97 @@ export const formData = {
                 id: "textField"
             }
         ],
-        action: ({ response }) => {
+        action: ({ formDataResponse }) => {
             const recipes = getAddonSetting("recipes")
-            for (let i = 1; i < response.length; i++) {
-                recipes["revive_beacon"].ingredients[i - 1] = response[i]
+            for (let i = 1; i < formDataResponse.length; i++) {
+                recipes["revive_beacon"].ingredients[i - 1] = formDataResponse[i].inputData
             }
-            recipes["revive_beacon"].floorCrafting = response[0]
+            recipes["revive_beacon"].floorCrafting = formDataResponse[0].inputData
             Mc.world.setDynamicProperty("recipes", JSON.stringify(recipes))
             updateGameState({ state: "possibleCraftingItems", value: undefined })
         }
+    },
+    reviveDropdownMenu: {//data input
+        type: "modalFormData",
+        title: "Reviving",
+        dropdown: [
+            {
+                placement: 0,
+                name: "Player to revive",
+                list: "fallenPlayers",
+                id: "dropDown"
+            }
+        ],
+        slider: [
+            {
+                placement: 2, admin: true, name: "Hearts", min: 1, max: 50, defaultValue: "respawnHearts", step: 1, id: "slider",
+            }
+        ],
+        toggle: [
+            {
+                placement: 1, admin: true, name: "Respawn player with custom hearts", defaultValue: false, id: "toggle",
+            }
+        ],
+        action: ({ player, admin, formDataResponse }) => {
+            const propId = formDataResponse[0].inputDropDownData[formDataResponse[0].inputData]
+            if (admin === undefined || admin === false) if (removeItems(player, "unitx:revive_soul", 1) === false) return
+            Mc.world.setDynamicProperty(propId, undefined)
+            const name = propId.split(":", 2)[1]
+            if (admin !== undefined && admin !== false) {
+                if (formDataResponse[1].inputData === true) {
+                    Mc.world.setDynamicProperty(changeHealthId + name, formDataResponse[2].inputData)
+                }
+            }
+            Mc.world.sendMessage(`§a${name} §7has been brought back to life`)
+            Mc.world.getAllPlayers().forEach(player => { player.playSound("ambient.weather.thunder") })
+        }
+    },
+    reviveInputMenu: {//data input
+        type: "modalFormData",
+        title: "Unbanning players",
+        slider: [
+            {
+                placement: 2, admin: true, name: "Hearts", min: 1, max: 50, defaultValue: "respawnHearts", step: 1, id: "slider",
+            }
+        ],
+        toggle: [
+            {
+                placement: 1, admin: true, name: "Respawn player with custom hearts", defaultValue: false, id: "toggle",
+            }
+        ],
+        textField: [
+            {
+                placement: 0,
+                name: "Players name:",
+                id: "textField",
+            }
+        ],
+        action: ({ player, admin, formDataResponse }) => {
+            const banned_players = Mc.world.getDynamicPropertyIds()
+            const name = formDataResponse[0].inputData
+            if (!banned_players.includes(banId + name) && !banned_players.includes(spectoratorId + name)) {
+                player.sendMessage(`§7No players with the name §c${name} §7can be found to be brought back to life!`)
+                return
+            }
+            if (admin === undefined || admin === false) if (removeItems(player, "unitx:revive_soul", 1) === false) return
+            Mc.world.setDynamicProperty(banId + name, undefined)
+            Mc.world.setDynamicProperty(spectoratorId + name, undefined)
+            if (admin !== undefined && admin !== false) {
+                if (formDataResponse[1].inputData === true) {
+                    Mc.world.setDynamicProperty(changeHealthId + name, formDataResponse[2].inputData)
+                }
+            }
+            Mc.world.sendMessage(`§a${name} §7has been brought back to life`)
+            Mc.world.getAllPlayers().forEach(player => { player.playSound("ambient.weather.thunder") })
+        }
+    },
+    reviveTypeMenu: {//button list
+        type: "actionFormData",
+        title: "Input type",
+        buttons: [
+            { placement: 0, name: "Manual entry", texture: "textures/items/name_tag", action: (player, admin) => openForm({ player: player, formKey: "reviveInputMenu", admin: admin }) },
+            { placement: 1, name: "List", texture: "textures/items/flower_banner_pattern", action: (player, admin) => openForm({ player: player, formKey: "reviveDropdownMenu", admin: admin }) },
+        ]
     }
 }
 

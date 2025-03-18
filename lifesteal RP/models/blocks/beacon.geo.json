@@ -3,263 +3,64 @@
 	"minecraft:geometry": [
 		{
 			"description": {
-				"identifier": "geometry.beacon",
+				"identifier": "geometry.revive_beacon",
 				"texture_width": 16,
 				"texture_height": 16,
 				"visible_bounds_width": 3,
 				"visible_bounds_height": 2.5,
-				"visible_bounds_offset": [
-					0,
-					0.75,
-					0
-				]
+				"visible_bounds_offset": [0, 0.75, 0]
 			},
 			"bones": [
 				{
-					"name": "beacon",
-					"pivot": [
-						0,
-						0,
-						0
-					],
+					"name": "base",
+					"pivot": [0, 0, 0],
 					"cubes": [
 						{
-							"origin": [
-								-6,
-								0.1,
-								-6
-							],
-							"size": [
-								12,
-								3,
-								12
-							],
+							"origin": [-6, 0.1, -6],
+							"size": [12, 3, 12],
 							"uv": {
-								"north": {
-									"uv": [
-										9,
-										6.5
-									],
-									"uv_size": [
-										6,
-										1.5
-									],
-									"material_instance": "alpha_test"
-								},
-								"east": {
-									"uv": [
-										9,
-										6.5
-									],
-									"uv_size": [
-										6,
-										1.5
-									],
-									"material_instance": "alpha_test"
-								},
-								"south": {
-									"uv": [
-										9,
-										6.5
-									],
-									"uv_size": [
-										6,
-										1.5
-									],
-									"material_instance": "alpha_test"
-								},
-								"west": {
-									"uv": [
-										9,
-										6.5
-									],
-									"uv_size": [
-										6,
-										1.5
-									],
-									"material_instance": "alpha_test"
-								},
-								"up": {
-									"uv": [
-										15,
-										7
-									],
-									"uv_size": [
-										-6,
-										-6
-									],
-									"material_instance": "alpha_test"
-								},
-								"down": {
-									"uv": [
-										15,
-										7
-									],
-									"uv_size": [
-										-6,
-										-6
-									],
-									"material_instance": "alpha_test"
-								}
-							}
-						},
-						{
-							"origin": [
-								-5,
-								3,
-								-5
-							],
-							"size": [
-								10,
-								11,
-								10
-							],
-							"uv": {
-								"north": {
-									"uv": [
-										1.5,
-										1
-									],
-									"uv_size": [
-										5,
-										5.5
-									],
-									"material_instance": "alpha_test"
-								},
-								"east": {
-									"uv": [
-										1.5,
-										1
-									],
-									"uv_size": [
-										5,
-										5.5
-									],
-									"material_instance": "alpha_test"
-								},
-								"south": {
-									"uv": [
-										1.5,
-										1
-									],
-									"uv_size": [
-										5,
-										5.5
-									],
-									"material_instance": "alpha_test"
-								},
-								"west": {
-									"uv": [
-										1.5,
-										1
-									],
-									"uv_size": [
-										5,
-										5.5
-									],
-									"material_instance": "alpha_test"
-								},
-								"up": {
-									"uv": [
-										6.5,
-										6.5
-									],
-									"uv_size": [
-										-5,
-										-5
-									],
-									"material_instance": "alpha_test"
-								}
+								"north": {"uv": [2, 8], "uv_size": [12, 3], "material_instance": "base"},
+								"east": {"uv": [2, 11], "uv_size": [12, 3], "material_instance": "base"},
+								"south": {"uv": [2, 2], "uv_size": [12, 3], "material_instance": "base"},
+								"west": {"uv": [2, 5], "uv_size": [12, 3], "material_instance": "base"},
+								"up": {"uv": [14, 14], "uv_size": [-12, -12], "material_instance": "base"},
+								"down": {"uv": [14, 14], "uv_size": [-12, -12], "material_instance": "base"}
 							}
 						}
 					]
 				},
 				{
-					"name": "glass",
-					"pivot": [
-						0,
-						0,
-						0
-					],
+					"name": "shell",
+					"pivot": [0, 0, 0],
 					"cubes": [
 						{
-							"origin": [
-								-8,
-								0,
-								-8
-							],
-							"size": [
-								16,
-								16,
-								16
-							],
+							"origin": [-8, 0, -8],
+							"size": [16, 16, 16],
 							"uv": {
-								"north": {
-									"uv": [
-										8,
-										8
-									],
-									"uv_size": [
-										8,
-										8
-									],
-									"material_instance": "blend"
-								},
-								"east": {
-									"uv": [
-										8,
-										8
-									],
-									"uv_size": [
-										8,
-										8
-									],
-									"material_instance": "blend"
-								},
-								"south": {
-									"uv": [
-										8,
-										8
-									],
-									"uv_size": [
-										8,
-										8
-									],
-									"material_instance": "blend"
-								},
-								"west": {
-									"uv": [
-										8,
-										8
-									],
-									"uv_size": [
-										8,
-										8
-									],
-									"material_instance": "blend"
-								},
-								"up": {
-									"uv": [
-										16,
-										16
-									],
-									"uv_size": [
-										-8,
-										-8
-									],
-									"material_instance": "blend"
-								},
-								"down": {
-									"uv": [
-										16,
-										16
-									],
-									"uv_size": [
-										-8,
-										-8
-									],
-									"material_instance": "blend"
-								}
+								"north": {"uv": [0, 0], "uv_size": [16, 16], "material_instance": "shell"},
+								"east": {"uv": [0, 0], "uv_size": [16, 16], "material_instance": "shell"},
+								"south": {"uv": [0, 0], "uv_size": [16, 16], "material_instance": "shell"},
+								"west": {"uv": [0, 0], "uv_size": [16, 16], "material_instance": "shell"},
+								"up": {"uv": [16, 16], "uv_size": [-16, -16], "material_instance": "shell"},
+								"down": {"uv": [16, 16], "uv_size": [-16, -16], "material_instance": "shell"}
+							}
+						}
+					]
+				},
+				{
+					"name": "core",
+					"pivot": [0, 0, 0],
+					"cubes": [
+						{
+							"origin": [-5, 3, -5],
+							"size": [10, 11, 10],
+							"uv": {
+								"north": {"uv": [3, 2], "uv_size": [10, 11], "material_instance": "core"},
+								"east": {"uv": [3, 2], "uv_size": [10, 11], "material_instance": "core"},
+								"south": {"uv": [3, 2], "uv_size": [10, 11], "material_instance": "core"},
+								"west": {"uv": [3, 2], "uv_size": [10, 11], "material_instance": "core"},
+								"up": {"uv": [13, 13], "uv_size": [-10, -9], "material_instance": "core"},
+								"down": {"uv": [13, 13], "uv_size": [-10, -9]}
 							}
 						}
 					]
