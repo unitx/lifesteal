@@ -1,0 +1,31 @@
+{
+  "format_version": "1.20.40",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "unitx:revive_beacon_beam",
+      "is_spawnable": true,
+      "is_summonable": true,
+      "is_experimental": false
+    },
+    "components": {
+      "minecraft:physics": {
+        "has_gravity": false,
+         "has_collision": false,
+         "push_towards_closest_space": false
+      },
+      "minecraft:damage_sensor": {
+        "triggers": [
+          {
+            "cause": "all",
+            "deals_damage": false
+          }
+        ]
+      },
+      "minecraft:renders_when_invisible": {},
+      "minecraft:collision_box": {
+        "width": 0,
+        "height": 0
+      }
+    }
+  }
+}

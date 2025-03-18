@@ -1,0 +1,20 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.beacon_beam.spin": {
+			"loop": true,
+			"animation_length": 8.4,
+			"bones": {
+				"bb_main": {
+					"rotation": {
+						"0.0": [0, 0, 0],
+						"2.1": [0, -90, 0],
+						"4.2": [0, -180, 0],
+						"6.3": [0, -270, 0],
+						"8.4": [0, -360, 0]
+					}
+				}
+			}
+		}
+	}
+}

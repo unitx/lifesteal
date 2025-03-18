@@ -1,0 +1,25 @@
+{
+    "format_version": "1.8.0",
+    "render_controllers": {
+      "controller.render.revive_beacon_beam": {
+        "geometry": "Geometry.default",
+        "materials": [ { "*": "Material.default" } ],
+        "textures": [ "Texture.default" ],
+        
+        "uv_anim": {
+            "offset": [
+              0, 
+              "math.mod(q.life_time * 16 / 528, 33) / 33"
+            ],
+            "scale": [
+              1, 
+              1
+            ]
+          }
+          
+          
+
+
+      }
+    }
+  }

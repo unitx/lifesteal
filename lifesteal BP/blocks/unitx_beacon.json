@@ -48,9 +48,14 @@
 					0
 				]
 			},
+			"minecraft:tick": {
+				 "interval_range": [20,20],
+				  "looping": true
+			},
 			"minecraft:custom_components": [
 				"unitx:beacon_gui",
-				"unitx:break_beacon"
+				"unitx:break_beacon",
+				"unitx:beacon_tick"
 			]
 		}
 	}

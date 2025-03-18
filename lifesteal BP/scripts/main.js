@@ -2,7 +2,7 @@ import * as Mc from "@minecraft/server"
 import * as Ui from "@minecraft/server-ui"
 import {
     defaultAddonSetting, beaconBaseBlocks, formData, banId, banTag, recivedStartingHealthTag,
-    spectoratorTag, craftingItemTimerProperty, validCraftingItem, processingCraftingItem, spectoratorId,changeHealthId
+    spectoratorTag, craftingItemTimerProperty, validCraftingItem, processingCraftingItem, spectoratorId, changeHealthId
 } from "./variables.js"
 let updateState = {
     possibleCraftingItems: undefined,
@@ -17,21 +17,21 @@ const dimensions = ["overworld", "nether", "the_end"]
 
 Mc.system.runInterval(() => {
     for (const player of Mc.world.getPlayers({ tags: [banTag] })) {
-        let propId=Mc.world.getDynamicProperty(banId + player.name)
-        if (propId!==undefined) {
+        let propId = Mc.world.getDynamicProperty(banId + player.name)
+        if (propId !== undefined) {
             player.runCommand(`kick ${player.name} §cYou have lost your last life, You are banned!`)
             continue
         }
-        const health = Mc.world.getDynamicProperty(changeHealthId+player.name)
-        if(health!==undefined) Mc.world.setDynamicProperty(changeHealthId+player.name,undefined)
+        const health = Mc.world.getDynamicProperty(changeHealthId + player.name)
+        if (health !== undefined) Mc.world.setDynamicProperty(changeHealthId + player.name, undefined)
         player.removeTag(banTag)
         respawn_player(player, health, undefined)
     }
     for (const player of Mc.world.getPlayers({ tags: [spectoratorTag] })) {
-        let propId=Mc.world.getDynamicProperty(spectoratorId + player.name)
-        if (propId!==undefined) continue
-        const health = Mc.world.getDynamicProperty(changeHealthId+player.name)
-        if(health!==undefined) Mc.world.setDynamicProperty(changeHealthId+player.name,undefined)
+        let propId = Mc.world.getDynamicProperty(spectoratorId + player.name)
+        if (propId !== undefined) continue
+        const health = Mc.world.getDynamicProperty(changeHealthId + player.name)
+        if (health !== undefined) Mc.world.setDynamicProperty(changeHealthId + player.name, undefined)
         player.removeTag(spectoratorTag)
         respawn_player(player, health, undefined)
     }
@@ -230,6 +230,24 @@ Mc.world.beforeEvents.worldInitialize.subscribe((eventData) => {
                 }
             }
             if (sound === true) data.block.dimension.playSound("beacon.activate", data.block.location)
+            for (const entity of data.dimension.getEntities({ location: {x:data.block.location.x+0.5,y:data.block.location.y,z:data.block.location.z+0.5}, maxDistance: 0.2, type: "unitx:revive_beacon_beam" })) {
+                entity.remove()
+            }
+        }
+    })
+    eventData.blockComponentRegistry.registerCustomComponent("unitx:beacon_tick", {
+        onTick(data){
+            const baseSize = getAddonSetting("requiredBeaconBaseSize")
+            const entitys = data.dimension.getEntities({ location: {x:data.block.location.x+0.5,y:data.block.location.y,z:data.block.location.z+0.5}, maxDistance: 0.2, type: "unitx:revive_beacon_beam" })
+            for (let i = 1; i < baseSize + 1; i++) {
+                if ([...data.dimension.getBlocks(new Mc.BlockVolume({ x: data.block.x + i, y: data.block.y - i, z: data.block.z + i }, { x: data.block.x - i, y: data.block.y - i, z: data.block.z - i }), { includeTypes: beaconBaseBlocks }).getBlockLocationIterator()].length !== (i * 2 + 1) ** 2) {
+                    for (const entity of entitys) {
+                        entity.remove()
+                    }
+                    return
+                }
+            }
+            if(entitys.length===0) data.dimension.spawnEntity("unitx:revive_beacon_beam",{x:data.block.location.x+0.5,y:data.block.location.y,z:data.block.location.z+0.5})
         }
     })
 })
@@ -525,7 +543,7 @@ export async function openForm({ player, formKey, admin }) {
             }
             else if (field.id === "dropDown") {//dropdown
                 let dropdownOptions = [];
-                let data=[]
+                let data = []
                 if (field.list === "onlinePlayers") {
                     dropdownOptions = Array.from(Mc.world.getPlayers({ gameMode: "spectator", tags: [spectoratorTag] }), p => p.name);
                     if (dropdownOptions.length === 0) {
@@ -534,8 +552,8 @@ export async function openForm({ player, formKey, admin }) {
                     }
                 }
                 else if (field.list === "fallenPlayers") {
-                    dropdownOptions= Mc.world.getDynamicPropertyIds()
-                    data=[...dropdownOptions]
+                    dropdownOptions = Mc.world.getDynamicPropertyIds()
+                    data = [...dropdownOptions]
                     for (let i = dropdownOptions.length - 1; i >= 0; i--) {
                         if (!dropdownOptions[i].includes(spectoratorId) && !dropdownOptions[i].includes(banId)) {
                             dropdownOptions.splice(i, 1)
@@ -568,7 +586,7 @@ export async function openForm({ player, formKey, admin }) {
                 let recipeData
                 if (defaultValue === "naturalregeneration") recipeData = Mc.world.gameRules.naturalRegeneration
                 else recipeData = getAddonSetting(defaultValue);
-                if(recipeData===undefined) recipeData=defaultValue
+                if (recipeData === undefined) recipeData = defaultValue
                 let toggleValue = recipeData[recipeKey]?.floorCrafting ?? recipeData;
 
                 form.toggle(field.name, toggleValue);
@@ -588,10 +606,10 @@ export async function openForm({ player, formKey, admin }) {
         };
         let response = await form.show(player);
         if (response.canceled) return;
-        
+
         let responseIndex = 0;
         for (let i = 0; i <= elements.length; i++) {
-            try{formDataResponse[i].inputData = response.formValues[i]}catch(e){}//input data like slider value or index of array
+            try { formDataResponse[i].inputData = response.formValues[i] } catch (e) { }//input data like slider value or index of array
             responseIndex++;
         }
         if (formConfig.action) {
@@ -647,9 +665,9 @@ export function setPlayersHealth({ player, hearts, withdraw = false, removeItem,
     if (maxHealth === undefined) maxHealth = Mc.world.scoreboard.addObjective("lifesteal:maxhealth")
     maxHealth.setScore(player, newHealth)
 }
-function resetDefaultSettings(){
-    for(const [key,value] of Object.entries(defaultAddonSetting)){
-        if(key==="recipes") Mc.world.setDynamicProperty(key,JSON.stringify(value))
-        else Mc.world.setDynamicProperty(key,value)
+function resetDefaultSettings() {
+    for (const [key, value] of Object.entries(defaultAddonSetting)) {
+        if (key === "recipes") Mc.world.setDynamicProperty(key, JSON.stringify(value))
+        else Mc.world.setDynamicProperty(key, value)
     }
 }
