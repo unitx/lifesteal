@@ -221,7 +221,8 @@ Mc.world.beforeEvents.worldInitialize.subscribe((eventData) => {
     })
     eventData.blockComponentRegistry.registerCustomComponent("unitx:break_beacon", {
         onPlayerDestroy(data) {
-            for (const entity of data.dimension.getEntities({ location: { x: data.block.location.x + 0.5, y: data.block.location.y, z: data.block.location.z + 0.5 }, maxDistance: 0.2, type: "unitx:revive_beacon_beam" })) {
+            const location = data.block.center()
+            for (const entity of data.dimension.getEntities({ type: "unitx:revive_beacon_beam", tags: [`beaconBeamLocation:${JSON.stringify(location)}`] })) {
                 entity.remove()
             }
         }
@@ -229,7 +230,7 @@ Mc.world.beforeEvents.worldInitialize.subscribe((eventData) => {
     eventData.blockComponentRegistry.registerCustomComponent("unitx:beacon_tick", {
         onTick(data) {
             const location = data.block.center()
-            const entitys = data.dimension.getEntities({ location: { x: location.x - 0.5, y: location.y - 0.5, z: location.z - 0.5 }, volume: { x: location.x + 0.5, y: location.y + 0.5, z: location.z + 0.5 }, type: "unitx:revive_beacon_beam" })
+            const entitys = data.dimension.getEntities({ type: "unitx:revive_beacon_beam", tags: [`beaconBeamLocation:${JSON.stringify(location)}`] })
             if (entitys.length > 1) for (let i = 1; i < entitys.length; i++) entitys[i].remove()
             if (getAddonSetting("beaconEffects") === false) {
                 let removed = false
@@ -239,28 +240,32 @@ Mc.world.beforeEvents.worldInitialize.subscribe((eventData) => {
                 }
                 if (removed === true) data.block.dimension.playSound("beacon.deactivate", location)
                 return
-
             }
             const baseSize = getAddonSetting("requiredBeaconBaseSize")
-            const raycast = data.dimension.getTopmostBlock({ x: data.block.location.x, z: data.block.location.z })
-            if (raycast === undefined || raycast.typeId !== "unitx:revive_beacon" || raycast.location.y !== data.block.y) {
+            const raycast = data.dimension.getTopmostBlock({ x: location.x, z: location.z })
+            if (raycast === undefined || raycast.typeId !== "unitx:revive_beacon" || raycast.location.y !== data.block.location.y) {
                 for (const entity of entitys) entity.remove()
                 return
             }
             for (let i = 1; i < baseSize + 1; i++) {
-                if ([...data.dimension.getBlocks(new Mc.BlockVolume({ x: data.block.x + i, y: data.block.y - i, z: data.block.z + i }, { x: data.block.x - i, y: data.block.y - i, z: data.block.z - i }), { includeTypes: beaconBaseBlocks }).getBlockLocationIterator()].length !== (i * 2 + 1) ** 2) {
-                    let removed = false
-                    for (const entity of entitys) {
-                        entity.remove()
-                        removed = true
+                try {
+                    if ([...data.dimension.getBlocks(new Mc.BlockVolume({ x: data.block.x + i, y: data.block.y - i, z: data.block.z + i }, { x: data.block.x - i, y: data.block.y - i, z: data.block.z - i }), { includeTypes: beaconBaseBlocks }).getBlockLocationIterator()].length !== (i * 2 + 1) ** 2) {
+                        let removed = false
+                        for (const entity of entitys) {
+                            entity.remove()
+                            removed = true
+                        }
+                        if (removed === true) data.block.dimension.playSound("beacon.deactivate", location)
+                        return
                     }
-                    if (removed === true) data.block.dimension.playSound("beacon.deactivate", location)
-                    return
-                }
+                } catch (e) { return }
             }
             data.block.dimension.playSound("beacon.ambient", location)
             if (entitys.length > 0) return
             const entity = data.dimension.spawnEntity("unitx:revive_beacon_beam", location)
+            entity.addTag(`beaconBeamLocation:${JSON.stringify(location)}`)
+
+
             const maxHeight = data.block.dimension.heightRange.max
             const numberOfBeams = Math.floor((maxHeight - data.block.location.y) / 32)
             let heightOfHighestBeam = data.block.location.y + 32 * numberOfBeams
@@ -271,7 +276,7 @@ Mc.world.beforeEvents.worldInitialize.subscribe((eventData) => {
                 const segmentSize = beamSizes[i];
                 if (maxHeight - heightOfHighestBeam >= segmentSize) {
                     entity.setProperty(`unitx:beam_${segmentSize}`, currentHeight * 16);
-                    currentHeight += segmentSize;  
+                    currentHeight += segmentSize;
                     heightOfHighestBeam += segmentSize;
                 } else entity.setProperty(`unitx:beam_${segmentSize}`, -1);
             }
@@ -292,7 +297,7 @@ Mc.world.afterEvents.playerInteractWithBlock.subscribe((data) => {
     if (data.player.isSneaking) return
 
     if (getAddonSetting("beaconEffects") === true) {
-        const entitys = data.block.dimension.getEntities({ location: data.block.center(), maxDistance: 0.5, type: "unitx:revive_beacon_beam" })
+        const entitys = data.block.dimension.getEntities({ type: "unitx:revive_beacon_beam", tags: [`beaconBeamLocation:${JSON.stringify(data.block.center())}`] })
         if (entitys.length === 0) return
     }
     else {
