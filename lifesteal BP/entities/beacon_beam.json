@@ -13,12 +13,6 @@
           "default": 0,
           "range": [-1,6144]
         },
-        "unitx:worldheight": {
-          "type": "int",
-          "client_sync": true,
-          "default": 0,
-          "range": [-1,6144]
-        },
         "unitx:beam_16": {
           "type": "int",
           "client_sync": true,

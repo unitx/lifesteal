@@ -262,50 +262,26 @@ Mc.world.beforeEvents.worldInitialize.subscribe((eventData) => {
             if (entitys.length > 0) return
             const entity = data.dimension.spawnEntity("unitx:revive_beacon_beam", location)
             const maxHeight = data.block.dimension.heightRange.max
-
             const numberOfBeams = Math.floor((maxHeight - data.block.location.y) / 32)
             let heightOfHighestBeam = data.block.location.y + 32 * numberOfBeams
-            let currentHeight=32 * numberOfBeams
+            let currentHeight = 32 * numberOfBeams
             entity.setProperty("unitx:height", numberOfBeams)
-
-            
-
-// List of beam sizes
-const beamSizes = [16, 8, 4, 2, 1];
-
-// Loop through each beam size
-for (let i = 0; i < beamSizes.length; i++) {
-    const segmentSize = beamSizes[i];
-
-    // Check if there is enough space for the segment
-    if (maxHeight - heightOfHighestBeam >= segmentSize) {
-        // Calculate the new height for the current beam and set the property
-        entity.setProperty(`unitx:beam_${segmentSize}`, currentHeight * 16);
-        currentHeight += segmentSize;  // Increment by the segment size
-        heightOfHighestBeam += segmentSize;  // Increment the highest beam position
-    } else {
-        // Set the beam to -1 if there's no space for it
-        entity.setProperty(`unitx:beam_${segmentSize}`, -1);
-    }
-}
-
-// Optional: Ensure beacon is not generating beams at height 0
-if (data.block.location.y === maxHeight-1) {
-    entity.setProperty("unitx:beam_16", -1);
-    entity.setProperty("unitx:beam_8", -1);
-    entity.setProperty("unitx:beam_4", -1);
-    entity.setProperty("unitx:beam_2", -1);
-    entity.setProperty("unitx:beam_1", -1);
-}
-
-
-
-
-            //data.block.dimension.setBlockType({x:data.block.x,y:heightOfHighestBeam,z:data.block.z+1},"emerald_block")
-
-
-
-
+            const beamSizes = [16, 8, 4, 2, 1];
+            for (let i = 0; i < beamSizes.length; i++) {
+                const segmentSize = beamSizes[i];
+                if (maxHeight - heightOfHighestBeam >= segmentSize) {
+                    entity.setProperty(`unitx:beam_${segmentSize}`, currentHeight * 16);
+                    currentHeight += segmentSize;  
+                    heightOfHighestBeam += segmentSize;
+                } else entity.setProperty(`unitx:beam_${segmentSize}`, -1);
+            }
+            if (data.block.location.y === maxHeight - 1) {
+                entity.setProperty("unitx:beam_16", -1);
+                entity.setProperty("unitx:beam_8", -1);
+                entity.setProperty("unitx:beam_4", -1);
+                entity.setProperty("unitx:beam_2", -1);
+                entity.setProperty("unitx:beam_1", -1);
+            }
             data.block.dimension.playSound("beacon.activate", location)
         }
     })
@@ -328,8 +304,13 @@ Mc.world.afterEvents.playerInteractWithBlock.subscribe((data) => {
             }
         }
     }
-    if (countItems(data.player, "unitx:revive_soul") <= 0) data.player.sendMessage(`§cA soul is requred!`)
-    else openForm({ player: data.player, formKey: "reviveTypeMenu", admin: false, location: data.block.location });
+    if (data.player.getGameMode() !== "creative") {
+        if (countItems(data.player, "unitx:revive_soul") <= 0) {
+            data.player.sendMessage(`§cA soul is requred!`)
+            return
+        }
+    }
+    openForm({ player: data.player, formKey: "reviveTypeMenu", admin: false, location: data.block.location });
 })
 Mc.world.afterEvents.entityHurt.subscribe((eventData) => {
     if (getAddonSetting("lifestealEnchantment") === false) return
@@ -361,20 +342,6 @@ Mc.world.afterEvents.playerBreakBlock.subscribe((eventData) => {
     }
     if ((Math.random() * (100 - 0.1) + 0.1) <= getAddonSetting("heartAppleChance")) eventData.dimension.spawnItem(new Mc.ItemStack("unitx:heart_apple", 1), { x: eventData.block.location.x + 0.5, y: eventData.block.location.y + 0.5, z: eventData.block.location.z + 0.5 })
 })
-
-/*
-let height = 0; // Track height globally
-
-Mc.system.runInterval(() => {
-    for (const entity of Mc.world.getDimension('overworld').getEntities({type: "unitx:revive_beacon_beam"})) {
-        entity.setProperty("unitx:height", height);
-    }
-    height = (height + 1) % 12; // Cycle from 0 to 11
-}, 20); // Runs every second (20 ticks)
-*/
-
-
-
 
 function tryEnchantmentOperation() {
     for (let i = encBooks.length - 1; i >= 0; i--) {
@@ -648,7 +615,7 @@ export async function openForm({ player, formKey, admin, location }) {
                         else dropdownOptions[i] = split[1]
                     }
                     if (dropdownOptions.length === 0) {
-                        player.sendMessage(`§cNo fallen players exist!`);
+                        player.sendMessage(`§cNo player has lost thier last life yet!`);
                         return;
                     }
                 }

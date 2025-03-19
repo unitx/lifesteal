@@ -569,5 +569,4 @@ export const formData = {
     }
 }
 
-
 //main infomation on curse forge and mcpdle, docs on wiki and extra infomation github wiki
