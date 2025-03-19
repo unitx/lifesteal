@@ -13,7 +13,7 @@ let updateState = {
 export function updateGameState({ state, value }) { updateState[state] = value }
 let encBooks = []
 let oneSecondTimer = 0
-const dimensions = ["overworld", "nether", "the_end"]
+export const dimensions = ["overworld", "nether", "the_end"]
 
 Mc.system.runInterval(() => {
     for (const player of Mc.world.getPlayers({ tags: [banTag] })) {
@@ -221,33 +221,92 @@ Mc.world.beforeEvents.worldInitialize.subscribe((eventData) => {
     })
     eventData.blockComponentRegistry.registerCustomComponent("unitx:break_beacon", {
         onPlayerDestroy(data) {
-            let sound = true
-            const baseSize = getAddonSetting("requiredBeaconBaseSize")
-            for (let i = 1; i < baseSize + 1; i++) {
-                if ([...data.dimension.getBlocks(new Mc.BlockVolume({ x: data.block.x + i, y: data.block.y - i, z: data.block.z + i }, { x: data.block.x - i, y: data.block.y - i, z: data.block.z - i }), { includeTypes: beaconBaseBlocks }).getBlockLocationIterator()].length !== (i * 2 + 1) ** 2) {
-                    sound = false
-                    break
-                }
-            }
-            if (sound === true) data.block.dimension.playSound("beacon.activate", data.block.location)
-            for (const entity of data.dimension.getEntities({ location: {x:data.block.location.x+0.5,y:data.block.location.y,z:data.block.location.z+0.5}, maxDistance: 0.2, type: "unitx:revive_beacon_beam" })) {
+            for (const entity of data.dimension.getEntities({ location: { x: data.block.location.x + 0.5, y: data.block.location.y, z: data.block.location.z + 0.5 }, maxDistance: 0.2, type: "unitx:revive_beacon_beam" })) {
                 entity.remove()
             }
         }
     })
     eventData.blockComponentRegistry.registerCustomComponent("unitx:beacon_tick", {
-        onTick(data){
+        onTick(data) {
+            const location = data.block.center()
+            const entitys = data.dimension.getEntities({ location: { x: location.x - 0.5, y: location.y - 0.5, z: location.z - 0.5 }, volume: { x: location.x + 0.5, y: location.y + 0.5, z: location.z + 0.5 }, type: "unitx:revive_beacon_beam" })
+            if (entitys.length > 1) for (let i = 1; i < entitys.length; i++) entitys[i].remove()
+            if (getAddonSetting("beaconEffects") === false) {
+                let removed = false
+                for (const entity of entitys) {
+                    entity.remove()
+                    removed = true
+                }
+                if (removed === true) data.block.dimension.playSound("beacon.deactivate", location)
+                return
+
+            }
             const baseSize = getAddonSetting("requiredBeaconBaseSize")
-            const entitys = data.dimension.getEntities({ location: {x:data.block.location.x+0.5,y:data.block.location.y,z:data.block.location.z+0.5}, maxDistance: 0.2, type: "unitx:revive_beacon_beam" })
+            const raycast = data.dimension.getTopmostBlock({ x: data.block.location.x, z: data.block.location.z })
+            if (raycast === undefined || raycast.typeId !== "unitx:revive_beacon" || raycast.location.y !== data.block.y) {
+                for (const entity of entitys) entity.remove()
+                return
+            }
             for (let i = 1; i < baseSize + 1; i++) {
                 if ([...data.dimension.getBlocks(new Mc.BlockVolume({ x: data.block.x + i, y: data.block.y - i, z: data.block.z + i }, { x: data.block.x - i, y: data.block.y - i, z: data.block.z - i }), { includeTypes: beaconBaseBlocks }).getBlockLocationIterator()].length !== (i * 2 + 1) ** 2) {
+                    let removed = false
                     for (const entity of entitys) {
                         entity.remove()
+                        removed = true
                     }
+                    if (removed === true) data.block.dimension.playSound("beacon.deactivate", location)
                     return
                 }
             }
-            if(entitys.length===0) data.dimension.spawnEntity("unitx:revive_beacon_beam",{x:data.block.location.x+0.5,y:data.block.location.y,z:data.block.location.z+0.5})
+            data.block.dimension.playSound("beacon.ambient", location)
+            if (entitys.length > 0) return
+            const entity = data.dimension.spawnEntity("unitx:revive_beacon_beam", location)
+            const maxHeight = data.block.dimension.heightRange.max
+
+            const numberOfBeams = Math.floor((maxHeight - data.block.location.y) / 32)
+            let heightOfHighestBeam = data.block.location.y + 32 * numberOfBeams
+            let currentHeight=32 * numberOfBeams
+            entity.setProperty("unitx:height", numberOfBeams)
+
+            
+
+// List of beam sizes
+const beamSizes = [16, 8, 4, 2, 1];
+
+// Loop through each beam size
+for (let i = 0; i < beamSizes.length; i++) {
+    const segmentSize = beamSizes[i];
+
+    // Check if there is enough space for the segment
+    if (maxHeight - heightOfHighestBeam >= segmentSize) {
+        // Calculate the new height for the current beam and set the property
+        entity.setProperty(`unitx:beam_${segmentSize}`, currentHeight * 16);
+        currentHeight += segmentSize;  // Increment by the segment size
+        heightOfHighestBeam += segmentSize;  // Increment the highest beam position
+    } else {
+        // Set the beam to -1 if there's no space for it
+        entity.setProperty(`unitx:beam_${segmentSize}`, -1);
+    }
+}
+
+// Optional: Ensure beacon is not generating beams at height 0
+if (data.block.location.y === maxHeight-1) {
+    entity.setProperty("unitx:beam_16", -1);
+    entity.setProperty("unitx:beam_8", -1);
+    entity.setProperty("unitx:beam_4", -1);
+    entity.setProperty("unitx:beam_2", -1);
+    entity.setProperty("unitx:beam_1", -1);
+}
+
+
+
+
+            //data.block.dimension.setBlockType({x:data.block.x,y:heightOfHighestBeam,z:data.block.z+1},"emerald_block")
+
+
+
+
+            data.block.dimension.playSound("beacon.activate", location)
         }
     })
 })
@@ -255,15 +314,22 @@ Mc.world.afterEvents.playerInteractWithBlock.subscribe((data) => {
     if (!data.isFirstEvent) return
     if (data.block.typeId !== "unitx:revive_beacon") return
     if (data.player.isSneaking) return
-    const baseSize = getAddonSetting("requiredBeaconBaseSize")
-    for (let i = 1; i < baseSize + 1; i++) {
-        if ([...data.block.dimension.getBlocks(new Mc.BlockVolume({ x: data.block.x + i, y: data.block.y - i, z: data.block.z + i }, { x: data.block.x - i, y: data.block.y - i, z: data.block.z - i }), { includeTypes: beaconBaseBlocks }).getBlockLocationIterator()].length !== (i * 2 + 1) ** 2) {
-            data.player.sendMessage(`§cInvaild Beacon Base!`)
-            return
+
+    if (getAddonSetting("beaconEffects") === true) {
+        const entitys = data.block.dimension.getEntities({ location: data.block.center(), maxDistance: 0.5, type: "unitx:revive_beacon_beam" })
+        if (entitys.length === 0) return
+    }
+    else {
+        const baseSize = getAddonSetting("requiredBeaconBaseSize")
+        for (let i = 1; i < baseSize + 1; i++) {
+            if ([...data.block.dimension.getBlocks(new Mc.BlockVolume({ x: data.block.x + i, y: data.block.y - i, z: data.block.z + i }, { x: data.block.x - i, y: data.block.y - i, z: data.block.z - i }), { includeTypes: beaconBaseBlocks }).getBlockLocationIterator()].length !== (i * 2 + 1) ** 2) {
+                data.player.sendMessage("§cInvalid beacon base!")
+                return
+            }
         }
     }
     if (countItems(data.player, "unitx:revive_soul") <= 0) data.player.sendMessage(`§cA soul is requred!`)
-    else openForm({ player: data.player, formKey: "reviveTypeMenu", admin: false });
+    else openForm({ player: data.player, formKey: "reviveTypeMenu", admin: false, location: data.block.location });
 })
 Mc.world.afterEvents.entityHurt.subscribe((eventData) => {
     if (getAddonSetting("lifestealEnchantment") === false) return
@@ -295,6 +361,20 @@ Mc.world.afterEvents.playerBreakBlock.subscribe((eventData) => {
     }
     if ((Math.random() * (100 - 0.1) + 0.1) <= getAddonSetting("heartAppleChance")) eventData.dimension.spawnItem(new Mc.ItemStack("unitx:heart_apple", 1), { x: eventData.block.location.x + 0.5, y: eventData.block.location.y + 0.5, z: eventData.block.location.z + 0.5 })
 })
+
+/*
+let height = 0; // Track height globally
+
+Mc.system.runInterval(() => {
+    for (const entity of Mc.world.getDimension('overworld').getEntities({type: "unitx:revive_beacon_beam"})) {
+        entity.setProperty("unitx:height", height);
+    }
+    height = (height + 1) % 12; // Cycle from 0 to 11
+}, 20); // Runs every second (20 ticks)
+*/
+
+
+
 
 function tryEnchantmentOperation() {
     for (let i = encBooks.length - 1; i >= 0; i--) {
@@ -496,7 +576,7 @@ export function removeItems(player, typeId, count) {
     }
     if (count > 0) return false
 }
-export async function openForm({ player, formKey, admin }) {
+export async function openForm({ player, formKey, admin, location }) {
     let formConfig = formData[formKey]
     let formDataResponse = []
     let form;
@@ -515,7 +595,7 @@ export async function openForm({ player, formKey, admin }) {
         if (response.canceled) return;
 
         let selectedButton = elements[response.selection];
-        if (selectedButton.action) selectedButton.action(player, admin);
+        if (selectedButton.action) selectedButton.action(player, admin, location);
 
     }
     else if (formConfig.type === "modalFormData") {
@@ -613,13 +693,13 @@ export async function openForm({ player, formKey, admin }) {
             responseIndex++;
         }
         if (formConfig.action) {
-            formConfig.action({ player: player, response: collectedResponses, admin: admin, index: collectedResponses2[responseIndex], formDataResponse: formDataResponse });
+            formConfig.action({ player: player, response: collectedResponses, admin: admin, index: collectedResponses2[responseIndex], formDataResponse: formDataResponse, location: location });
         }
         else {
             responseIndex = 0;
             for (const field of elements) {
                 if (field.action) {
-                    field.action({ player: player, response: collectedResponses[responseIndex], admin: admin, index: collectedResponses2[responseIndex], formDataResponse: formDataResponse[responseIndex] });
+                    field.action({ player: player, response: collectedResponses[responseIndex], admin: admin, index: collectedResponses2[responseIndex], formDataResponse: formDataResponse[responseIndex], location: location });
                 }
                 responseIndex++;
             };

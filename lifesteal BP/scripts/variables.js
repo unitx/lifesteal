@@ -1,5 +1,5 @@
 import * as Mc from "@minecraft/server"
-import { getAddonSetting, respawn_player, removeItems, openForm, getPlayersMaxHealth, updateGameState, setPlayersHealth } from "./main.js"
+import { getAddonSetting, respawn_player, removeItems, openForm, getPlayersMaxHealth, updateGameState, setPlayersHealth, dimensions } from "./main.js"
 
 export const banId = "unitxLifestealBan:"
 export const banTag = "unitxLifesteal:banned"
@@ -36,6 +36,7 @@ export const defaultAddonSetting = {
     heartTransferChance: 100,
     campFireRegeneration: false,
     heartAppleChance: 0.3,
+    beaconEffects: true,
     //developerOptions: false,
     recipes: {
         heart: {
@@ -234,6 +235,12 @@ export const formData = {
                 placement: 9, name: "Health naturally regenerates", defaultValue: "naturalregeneration", id: "toggle",
                 action: ({ formDataResponse }) => {
                     Mc.world.gameRules.naturalRegeneration = formDataResponse.inputData
+                }
+            },
+            {
+                placement: 10, name: "Enable beacon visual and sound effects", defaultValue: "beaconEffects", id: "toggle",
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("beaconEffects", formDataResponse.inputData)
                 }
             }
         ],
@@ -497,7 +504,7 @@ export const formData = {
                 placement: 1, admin: true, name: "Respawn player with custom hearts", defaultValue: false, id: "toggle",
             }
         ],
-        action: ({ player, admin, formDataResponse }) => {
+        action: ({ player, admin, formDataResponse, location }) => {
             const propId = formDataResponse[0].inputDropDownData[formDataResponse[0].inputData]
             if (admin === undefined || admin === false) if (removeItems(player, "unitx:revive_soul", 1) === false) return
             Mc.world.setDynamicProperty(propId, undefined)
@@ -508,12 +515,13 @@ export const formData = {
                 }
             }
             Mc.world.sendMessage(`§a${name} §7has been brought back to life`)
+            player.dimension.playSound("beacon.power", location)
             Mc.world.getAllPlayers().forEach(player => { player.playSound("ambient.weather.thunder") })
         }
     },
     reviveInputMenu: {//data input
         type: "modalFormData",
-        title: "Unbanning players",
+        title: "Reviving",
         slider: [
             {
                 placement: 2, admin: true, name: "Hearts", min: 1, max: 50, defaultValue: "respawnHearts", step: 1, id: "slider",
@@ -531,7 +539,7 @@ export const formData = {
                 id: "textField",
             }
         ],
-        action: ({ player, admin, formDataResponse }) => {
+        action: ({ player, admin, formDataResponse, location }) => {
             const banned_players = Mc.world.getDynamicPropertyIds()
             const name = formDataResponse[0].inputData
             if (!banned_players.includes(banId + name) && !banned_players.includes(spectoratorId + name)) {
@@ -547,6 +555,7 @@ export const formData = {
                 }
             }
             Mc.world.sendMessage(`§a${name} §7has been brought back to life`)
+            player.dimension.playSound("beacon.power", location)
             Mc.world.getAllPlayers().forEach(player => { player.playSound("ambient.weather.thunder") })
         }
     },
@@ -554,8 +563,8 @@ export const formData = {
         type: "actionFormData",
         title: "Input type",
         buttons: [
-            { placement: 0, name: "Manual entry", texture: "textures/items/name_tag", action: (player, admin) => openForm({ player: player, formKey: "reviveInputMenu", admin: admin }) },
-            { placement: 1, name: "List", texture: "textures/items/flower_banner_pattern", action: (player, admin) => openForm({ player: player, formKey: "reviveDropdownMenu", admin: admin }) },
+            { placement: 0, name: "Manual entry", texture: "textures/items/name_tag", action: (player, admin, location) => openForm({ player: player, formKey: "reviveInputMenu", admin: admin, location: location }) },
+            { placement: 1, name: "List", texture: "textures/items/flower_banner_pattern", action: (player, admin, location) => openForm({ player: player, formKey: "reviveDropdownMenu", admin: admin, location: location }) },
         ]
     }
 }

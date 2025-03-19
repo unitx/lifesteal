@@ -18,6 +18,7 @@
 			"minecraft:flammable": false,
 			"minecraft:material_instances": {
 				"*": {
+					"texture": "beacon_shell",
 					"render_method": "blend",
 					"ambient_occlusion": false,
 					"face_dimming": false
@@ -49,7 +50,7 @@
 				]
 			},
 			"minecraft:tick": {
-				 "interval_range": [20,20],
+				 "interval_range": [60,60],
 				  "looping": true
 			},
 			"minecraft:custom_components": [

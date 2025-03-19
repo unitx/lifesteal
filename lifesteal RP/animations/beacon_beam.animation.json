@@ -5,14 +5,171 @@
 			"loop": true,
 			"animation_length": 8.4,
 			"bones": {
-				"bb_main": {
+				"full_beam": {
 					"rotation": {
-						"0.0": [0, 0, 0],
-						"2.1": [0, -90, 0],
-						"4.2": [0, -180, 0],
-						"6.3": [0, -270, 0],
-						"8.4": [0, -360, 0]
+						"0.0": [
+							0,
+							0,
+							0
+						],
+						"2.1": [
+							0,
+							-90,
+							0
+						],
+						"4.2": [
+							0,
+							-180,
+							0
+						],
+						"6.3": [
+							0,
+							-270,
+							0
+						],
+						"8.4": [
+							0,
+							-360,
+							0
+						]
 					}
+				},
+				"beam1": {
+					"scale": [
+						1,
+						"(q.property('unitx:height') >= 1) ? 1 : 0",
+						1
+					]
+				},
+				"beam2": {
+					"scale": [
+						1,
+						"(q.property('unitx:height') >= 2) ? 1 : 0",
+						1
+					]
+				},
+				"beam3": {
+					"scale": [
+						1,
+						"(q.property('unitx:height') >= 3) ? 1 : 0",
+						1
+					]
+				},
+				"beam4": {
+					"scale": [
+						1,
+						"(q.property('unitx:height') >= 4) ? 1 : 0",
+						1
+					]
+				},
+				"beam5": {
+					"scale": [
+						1,
+						"(q.property('unitx:height') >= 5) ? 1 : 0",
+						1
+					]
+				},
+				"beam6": {
+					"scale": [
+						1,
+						"(q.property('unitx:height') >= 6) ? 1 : 0",
+						1
+					]
+				},
+				"beam7": {
+					"scale": [
+						1,
+						"(q.property('unitx:height') >= 7) ? 1 : 0",
+						1
+					]
+				},
+				"beam8": {
+					"scale": [
+						1,
+						"(q.property('unitx:height') >= 8) ? 1 : 0",
+						1
+					]
+				},
+				"beam9": {
+					"scale": [
+						1,
+						"(q.property('unitx:height') >= 9) ? 1 : 0",
+						1
+					]
+				},
+				"beam10": {
+					"scale": [
+						1,
+						"(q.property('unitx:height') >= 10) ? 1 : 0",
+						1
+					]
+				},
+				"beam11": {
+					"scale": [
+						1,
+						"(q.property('unitx:height') >= 11) ? 1 : 0",
+						1
+					]
+				},
+				"beamH16": {
+					"scale": [
+						1,
+						"(q.property('unitx:beam_16') == -1) ? 0 : 1",
+						1
+					],
+					"position": [
+						0,
+						"q.property('unitx:beam_16')",
+						0
+					]
+				},
+				"beamH8": {
+					"scale": [
+						1,
+						"(q.property('unitx:beam_8') == -1) ? 0 : 1",
+						1
+					],
+					"position": [
+						0,
+						"q.property('unitx:beam_8')",
+						0
+					]
+				},
+				"beamH4": {
+					"scale": [
+						1,
+						"(q.property('unitx:beam_4') == -1) ? 0 : 1",
+						1
+					],
+					"position": [
+						0,
+						"q.property('unitx:beam_4')",
+						0
+					]
+				},
+				"beamH2": {
+					"scale": [
+						1,
+						"(q.property('unitx:beam_2') == -1) ? 0 : 1",
+						1
+					],
+					"position": [
+						0,
+						"q.property('unitx:beam_2')",
+						0
+					]
+				},
+				"beamH1": {
+					"scale": [
+						1,
+						"(q.property('unitx:beam_1') == -1) ? 0 : 1",
+						1
+					],
+					"position": [
+						0,
+						"q.property('unitx:beam_1')",
+						0
+					]
 				}
 			}
 		}
