@@ -3,18 +3,10 @@
 	"metadata": {
 		"authors": [
 			"UnitX"
-		],
-		"generated_with": {
-			"bridge": [
-				"2.7.43"
-			],
-			"dash": [
-				"0.11.7"
-			]
-		}
+		]
 	},
 	"header": {
-		"name": "LifeSteal v2.15 - Bedrock",
+		"name": "LifeSteal v2.15",
 		"description": "LifeSteal v2.15 On Minecraft Bedrock | By: UnitX | Please do not steal code or claim this pack as your own and please credit me with name and link to the pack | ©UnitX",
 		"min_engine_version": [
 			1,
@@ -48,6 +40,18 @@
 				1,
 				5
 			]
+		}
+	],
+	"subpacks": [
+		{
+			"folder_name": "2",
+			"name": "Port banned/spectator players from old system to new system",
+			"memory_tier": 1
+		},
+		{
+			"folder_name": "1",
+			"name": "Default",
+			"memory_tier": 1
 		}
 	],
 	"dependencies": [

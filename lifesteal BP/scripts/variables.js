@@ -515,7 +515,7 @@ export const formData = {
                 }
             }
             Mc.world.sendMessage(`§a${name} §7has been brought back to life`)
-            player.dimension.playSound("beacon.power", location)
+            if(location!==undefined) player.dimension.playSound("beacon.power", location)
             Mc.world.getAllPlayers().forEach(player => { player.playSound("ambient.weather.thunder") })
         }
     },
@@ -555,7 +555,7 @@ export const formData = {
                 }
             }
             Mc.world.sendMessage(`§a${name} §7has been brought back to life`)
-            player.dimension.playSound("beacon.power", location)
+            if(location!==undefined) player.dimension.playSound("beacon.power", location)
             Mc.world.getAllPlayers().forEach(player => { player.playSound("ambient.weather.thunder") })
         }
     },
