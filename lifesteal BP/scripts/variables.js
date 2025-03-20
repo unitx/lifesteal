@@ -1,5 +1,5 @@
 import * as Mc from "@minecraft/server"
-import { getAddonSetting, respawn_player, removeItems, openForm, getPlayersMaxHealth, updateGameState, setPlayersHealth, dimensions } from "./main.js"
+import { getAddonSetting, removeItems, openForm, getPlayersMaxHealth, updateGameState, setPlayersHealth } from "./main.js"
 
 export const banId = "unitxLifestealBan:"
 export const banTag = "unitxLifesteal:banned"
@@ -185,13 +185,13 @@ export const formData = {
                 }
             },
             {
-                placement: 8, name: "Hearts per lifesteal enchantment level", min: 0.25, max: 10, defaultValue: "healthStealAmountPerLevel", step: 0.25, id: "slider",
+                placement: 8, name: "§cNote, slider shows rounded down value, the correct value is still used§f\nHearts per lifesteal enchantment level", min: 0.25, max: 10, defaultValue: "healthStealAmountPerLevel", step: 0.25, id: "slider",
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("healthStealAmountPerLevel", formDataResponse.inputData)
                 }
             },
             {
-                placement: 11, name: "Hearty apple drop chance", min: 0.1, max: 100, defaultValue: "heartAppleChance", step: 0.1, id: "slider",
+                placement: 11, name: "§cNote, slider shows rounded down value, the correct value is still used§f\nHearty apple drop chance", min: 0, max: 100, defaultValue: "heartAppleChance", step: 0.1, id: "slider",
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("heartAppleChance", formDataResponse.inputData)
                 }
@@ -256,7 +256,7 @@ export const formData = {
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("maxHealth", formDataResponse.inputData)
                     for (const player of Mc.world.getAllPlayers()) {
-                        if (getPlayersMaxHealth(player) > formDataResponse.inputData) player.triggerEvent("unitx:health" + formDataResponse.inputData)
+                        if (getPlayersMaxHealth(player)/2 > formDataResponse.inputData) setPlayersHealth({player:player,hearts:formDataResponse.inputData})
                     }
                 }
             },
@@ -568,5 +568,3 @@ export const formData = {
         ]
     }
 }
-
-//main infomation on curse forge and mcpdle, docs on wiki and extra infomation github wiki

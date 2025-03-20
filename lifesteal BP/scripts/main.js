@@ -40,10 +40,8 @@ Mc.system.runInterval(() => {
             const min = getAddonSetting("minRandomHearts")
             const random = Math.floor(Math.random() * (getAddonSetting("maxRandomHearts") - min) + min)
             setPlayersHealth({ player: player, hearts: random })
-            //player.triggerEvent("unitx:health" + random)
         }
         else setPlayersHealth({ player: player, hearts: getAddonSetting("startingHealth") })
-        //player.triggerEvent("unitx:health" + getAddonSetting("startingHealth"))
         player.addTag(recivedStartingHealthTag)
     }
     for (let [key, state] of Object.entries(updateState)) {
@@ -330,7 +328,7 @@ Mc.world.afterEvents.entityHurt.subscribe((eventData) => {
     const random = Math.floor(Math.random() * 100) + 1;
     if (random > getAddonSetting("healthStealChance")) return
     stealAmount = stealAmount * value
-    if (getAddonSetting("lifestealDamageScaled") === true) damage = damage * (stealAmount / 10)
+    if (getAddonSetting("lifestealDamageScaled") === true && damage>5) damage = stealAmount*(damage/5)
     else damage = stealAmount
     regenHealth(damagingEntity, damage)
 })
@@ -413,7 +411,7 @@ function tryToCraftItem() {
                 if (recipes.floorCrafting === false) continue
                 const recipe = recipes.ingredients
                 for (let i = recipe.length - 1; i >= 0; i--) {
-                    let item = recipe[i]
+                    let item = recipe[i].replaceAll(" ","")
                     if (item === "minecraft:air" || item === "air" || item === "undefined" || item === undefined || item === "" || item === " ") {
                         recipe.splice(i, 1)
                     }
@@ -422,8 +420,8 @@ function tryToCraftItem() {
                         if (itemData[item] !== undefined) {
                             if (!itemData2[item]) itemData2[item] = 0;
                             itemData2[item] += 1;
-                            if (itemData[item] === 1) delete itemData[item]
-                            else itemData[item] = itemData[item] - 1
+                            if (itemData[item] <= 1) delete itemData[item]
+                            else itemData[item]-=1
                             recipe.splice(i, 1)
                         }
                     }
@@ -500,12 +498,11 @@ export function respawn_player(player, health, sound) {
         else {
             const min = getAddonSetting("minRandomRespawnHearts")
             health = Math.floor(Math.random() * (getAddonSetting("maxRandomRespawnHearts") - min + 1)) + min
-            Mc.world.sendMessage(`${health} ${getAddonSetting("maxRandomRespawnHearts")} ${min}`)
         }
     }
     setPlayersHealth({ player: player, hearts: health })
     if (sound !== undefined) Mc.world.getAllPlayers().forEach(player => { player.playSound(sound) })
-    try { player.removeTag("spectorator") } catch (e) { }
+    try { player.removeTag(spectoratorTag) } catch (e) { }
     try { player.removeTag(banTag) } catch (e) { }
     let spawnpoint = player.getSpawnPoint()
     if (spawnpoint === undefined) {
@@ -591,6 +588,7 @@ export async function openForm({ player, formKey, admin, location }) {
                 if (defaultAddonSetting[defaultValue] !== undefined) defaultValue = getAddonSetting(defaultValue);
                 if (max === "playersHealth") max = (Math.floor(admin / 2) - 1) || 1
                 form.slider(field.name, field.min, max, field.step, defaultValue);
+
                 formDataResponse.push({ sliderMin: field.min, sliderMax: max })
             }
             else if (field.id === "dropDown") {//dropdown
@@ -685,37 +683,41 @@ export function getPlayersMaxHealth(player) {
 }
 export function setPlayersHealth({ player, hearts, withdraw = false, removeItem, set = true }) {
     const allowdMax = getAddonSetting("maxHealth")
-    const max = getPlayersMaxHealth(player)
-    let newHealth = 0
+    let newHearts = 0
     if (withdraw === true) {
+        const max = getPlayersMaxHealth(player)
         if (hearts >= (max / 2)) {
             player.sendMessage(`§cInsufficient amount of hearts gain more hearts to withdraw §7${hearts} §hearts!`)
             return
         }
-        newHealth = Math.floor(max / 2) - hearts
-        player.triggerEvent("unitx:health" + newHealth)
+        newHearts = Math.floor(max / 2) - hearts
+        player.triggerEvent("unitx:health" + newHearts)
         player.runCommand(`give @s unitx:heart ${hearts}`)
         player.sendMessage(`§aYou have withdrawn §7${hearts} §ahearts`)
-        newHealth = newHealth * 2
+        newHearts = newHearts * 2
     }
     else {
-        if (set === true) newHealth = hearts
-        else newHealth = Math.floor(max / 2) + hearts
-        if (newHealth > allowdMax) {
+        if (set === true) newHearts = hearts
+        else {
+            const max = getPlayersMaxHealth(player)
+            newHearts = Math.floor(max / 2) + hearts
+        }
+        if (newHearts > allowdMax) {
             player.triggerEvent("unitx:health" + allowdMax)
-            player.sendMessage(`§cMax health reached!`)
+            player.sendMessage(`§cMax number of hearts reached!`)
             return
         }
+        if(newHearts>50) newHearts=50
         if (removeItem !== undefined) {
             if (removeItems(player, removeItem.typeId, removeItem.amount) === false) return
-            player.triggerEvent("unitx:health" + newHealth)
+            player.triggerEvent("unitx:health" + newHearts)
         }
-        else player.triggerEvent("unitx:health" + newHealth)
-        newHealth = newHealth * 2
+        else player.triggerEvent("unitx:health" + newHearts)
+        newHearts = newHearts * 2
     }
     let maxHealth = Mc.world.scoreboard.getObjective("lifesteal:maxhealth")
     if (maxHealth === undefined) maxHealth = Mc.world.scoreboard.addObjective("lifesteal:maxhealth")
-    maxHealth.setScore(player, newHealth)
+    maxHealth.setScore(player, newHearts)
 }
 function resetDefaultSettings() {
     for (const [key, value] of Object.entries(defaultAddonSetting)) {
