@@ -188,6 +188,17 @@ Mc.system.afterEvents.scriptEventReceive.subscribe((eventData) => {
         openForm({ player: player, formKey: "withdrawHearts", admin: max })
     }
 })
+/*
+import * as Mc from "@minecraft/server"
+Mc.world.beforeEvents.worldInitialize.subscribe((eventData) => {
+    eventData.itemComponentRegistry.registerCustomComponent("gr_peach_effects", {
+        onConsume({source}){
+            source.addEffect("speed",100,{amplifier:2,showParticles:true})
+            source.addEffect("regeneration",100,{amplifier:2,showParticles:true})
+        }
+    })
+})
+*/
 Mc.world.beforeEvents.worldInitialize.subscribe((eventData) => {
     eventData.blockComponentRegistry.registerCustomComponent("unitx:beacon_gui", {
         onPlayerInteract(data) { }
