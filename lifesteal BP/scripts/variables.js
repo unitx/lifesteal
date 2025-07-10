@@ -13,7 +13,7 @@ export const validCraftingItem = "unitxLifesteal:validCraftingItem"
 export const craftingItemTimerProperty = "unitxLifesteal:craftingItemTimer"
 export const defaultAddonSetting = {
     startingHealth: 10,
-    maxHealth: 30,
+    maxHealth: 20,
     healthGain: 1,
     healthLose: 1,
     environmentalDeaths: true,
