@@ -1,0 +1,52 @@
+//Changing the recipe is quite simple, below you will find the word pattern which is the shape that the crafting tables 
+//uses, putting # repisents an empty slot and below you will find numbers which correspond to the crafting table slots 1-9
+{
+	"format_version": "1.12",
+	"minecraft:recipe_shaped": {
+		"description": {
+			"identifier": "unitx:heart"
+		},
+		"tags": [
+			"crafting_table"
+		],
+		"pattern": [
+			"123",
+			"4 6", //<-- " " represent an empty slot
+			"789"
+		],
+		"key": {
+			"1": {
+				"item": "minecraft:obsidian"
+			},
+			"2": {
+				"item": "minecraft:diamond_block"
+			},
+			"3": {
+				"item": "minecraft:obsidian"
+			},
+			"4": {
+				"item": "minecraft:diamond_block"
+			},
+			"5": { //this item is un-used, change the middle " " in the pattern to 5 to start using this item 
+				"item": "minecraft:dirt"
+			},
+			"6": {
+				"item": "minecraft:diamond_block"
+			},
+			"7": {
+				"item": "minecraft:obsidian"
+			},
+			"8": {
+				"item": "minecraft:diamond_block"
+			},
+			"9": {
+				"item": "minecraft:obsidian"
+			}
+		},
+		"result": [
+			{
+				"item": "unitx:heart"
+			}
+		]
+	}
+}
