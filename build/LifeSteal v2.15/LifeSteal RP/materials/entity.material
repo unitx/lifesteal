@@ -1,8 +1,0 @@
-{
-    "materials": {
-        "version": "1.0.0",
-        "beacon_beam:entity_alphatest": {
-            "+defines": ["USE_UV_ANIM"]
-        }
-    }
-}

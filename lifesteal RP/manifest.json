@@ -1,34 +1,18 @@
 {
- "format_version": 2,
- "metadata": {
-  "authors": [
-   "UnitX"
+  "format_version": 2,
+  "metadata": {"authors": ["UnitX"]},
+  "header": {
+    "name": "LifeSteal v2.16",
+    "description": "LifeSteal v2.16 On Minecraft Bedrock | By: UnitX | Please do not steal code or claim this pack as your own and please credit me with name and link to the pack | ©UnitX",
+    "min_engine_version": [1, 21, 0],
+    "uuid": "13d7ad78-6d82-4be6-b450-f55420e98873",
+    "version": [2, 1, 6]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "117f8663-68d8-4647-a273-522299f5232f",
+      "version": [2, 1, 6]
+    }
   ]
- },
- "header": {
-  "name": "LifeSteal v2.15",
-  "description": "LifeSteal v2.15 On Minecraft Bedrock | By: UnitX | Please do not steal code or claim this pack as your own and please credit me with name and link to the pack | ©UnitX",
-  "min_engine_version": [
-   1,
-   21,
-   0
-  ],
-  "uuid": "13d7ad78-6d82-4be6-b450-f55420e98873",
-  "version": [
-   2,
-   1,
-   5
-  ]
- },
- "modules": [
-  {
-   "type": "resources",
-   "uuid": "117f8663-68d8-4647-a273-522299f5232f",
-   "version": [
-    2,
-    1,
-    5
-   ]
-  }
- ]
 }

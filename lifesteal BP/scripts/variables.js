@@ -37,6 +37,7 @@ export const defaultAddonSetting = {
     campFireRegeneration: false,
     heartAppleChance: 0.3,
     beaconEffects: true,
+    withdrawCommand: true,
     //developerOptions: false,
     recipes: {
         heart: {
@@ -104,45 +105,45 @@ export const formData = {
         title: "Extra settings",
         toggle: [
             {
-                placement: 0, name: "Enable random starting hearts", defaultValue: "randomHearts", id: "toggle",
+                placement: 0, name: {rawtext: [{translate: "lifesteal.setting_name.random_start_hearts"}]}, defaultValue: "randomHearts", id: "toggle", tooltip: {rawtext: [{translate: "lifesteal.setting.random_start_hearts"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("randomHearts", formDataResponse.inputData)
                 }
             },
             {
-                placement: 3, name: "Lightning strike after final life", defaultValue: "finalDeathAnimation", id: "toggle",
+                placement: 3, name: {rawtext: [{translate: "lifesteal.setting_name.final_death_animation"}]}, defaultValue: "finalDeathAnimation", id: "toggle", tooltip: {rawtext: [{translate: "lifesteal.setting.final_death_animation"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("finalDeathAnimation", formDataResponse.inputData)
                 }
             },
             {
-                placement: 4, name: "Drop all hearts instead of receiving them", defaultValue: "dropAllHearts", id: "toggle",
+                placement: 4, name: {rawtext: [{translate: "lifesteal.setting_name.drop_all_hearts"}]}, defaultValue: "dropAllHearts", id: "toggle", tooltip: {rawtext: [{translate: "lifesteal.setting.drop_all_hearts"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("dropAllHearts", formDataResponse.inputData)
                 }
             },
             {
-                placement: 5, name: "Enable lifesteal enchantment", defaultValue: "lifestealEnchantment", id: "toggle",
+                placement: 5, name: {rawtext: [{translate: "lifesteal.setting_name.lifesteal_enchantment"}]}, defaultValue: "lifestealEnchantment", id: "toggle", tooltip: {rawtext: [{translate: "lifesteal.setting.lifesteal_enchantment"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("lifestealEnchantment", formDataResponse.inputData)
                     updateGameState({ state: "lifeStealEnchantment", value: undefined })
                 }
             },
             {
-                placement: 6, name: "Scale lifesteal enchantment by damage", defaultValue: "lifestealDamageScaled", id: "toggle",
+                placement: 6, name: {rawtext: [{translate: "lifesteal.setting_name.scaled_lifesteal_damage"}]}, defaultValue: "lifestealDamageScaled", id: "toggle", tooltip: {rawtext: [{translate: "lifesteal.setting.scaled_lifesteal_damage"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("lifestealDamageScaled", formDataResponse.inputData)
                 }
             },
             {
-                placement: 10, name: "Campfire regneration", defaultValue: "campFireRegeneration", id: "toggle",
+                placement: 10, name: {rawtext: [{translate: "lifesteal.setting_name.campfire_regeneration"}]}, defaultValue: "campFireRegeneration", id: "toggle", tooltip: {rawtext: [{translate: "lifesteal.setting.campfire_regeneration"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("campFireRegeneration", formDataResponse.inputData)
                     updateGameState({ state: "campFireRegeneration", value: undefined })
                 }
             },
             {
-                placement: 12, name: "Enable random respawn hearts", defaultValue: "randomRespawnHearts", id: "toggle",
+                placement: 12, name: {rawtext: [{translate: "lifesteal.setting_name.random_respawn_hearts"}]}, defaultValue: "randomRespawnHearts", id: "toggle", tooltip: {rawtext: [{translate: "lifesteal.setting.random_respawn_hearts"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("randomRespawnHearts", formDataResponse.inputData)
                 }
@@ -156,13 +157,13 @@ export const formData = {
         ],
         slider: [
             {
-                placement: 1, name: "Max starting hearts", min: 1, max: 50, defaultValue: "maxRandomHearts", step: 1, id: "slider",
+                placement: 1, name: {rawtext: [{translate: "lifesteal.setting_name.max_random_starting_hearts"}]}, min: 1, max: 50, defaultValue: "maxRandomHearts", step: 1, id: "slider", tooltip: {rawtext: [{translate: "lifesteal.setting.max_random_starting_hearts"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("maxRandomHearts", formDataResponse.inputData)
                 }
             },
             {
-                placement: 2, name: "Min starting hearts", min: 1, max: 50, defaultValue: "minRandomHearts", step: 1, id: "slider",
+                placement: 2, name: {rawtext: [{translate: "lifesteal.setting_name.min_random_starting_hearts"}]}, min: 1, max: 50, defaultValue: "minRandomHearts", step: 1, id: "slider", tooltip: {rawtext: [{translate: "lifesteal.setting.min_random_starting_hearts"}]},
                 action: ({ player, formDataResponse }) => {
                     let maxHealth = getAddonSetting("maxRandomHearts")
                     if (formDataResponse.inputData > maxHealth) {
@@ -173,37 +174,37 @@ export const formData = {
                 }
             },
             {
-                placement: 9, name: "Chance of dropping/transferring hearts on death", min: 0, max: 100, defaultValue: "heartTransferChance", step: 1, id: "slider",
+                placement: 9, name: {rawtext: [{translate: "lifesteal.setting_name.heart_transfer_chance"}]}, min: 0, max: 100, defaultValue: "heartTransferChance", step: 1, id: "slider", tooltip: {rawtext: [{translate: "lifesteal.setting.heart_transfer_chance"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("heartTransferChance", formDataResponse.inputData)
                 }
             },
             {
-                placement: 7, name: "Lifesteal enchantment chance", min: 1, max: 100, defaultValue: "healthStealChance", step: 1, id: "slider",
+                placement: 7, name: {rawtext: [{translate: "lifesteal.setting_name.enchantment_chance"}]}, min: 1, max: 100, defaultValue: "healthStealChance", step: 1, id: "slider", tooltip: {rawtext: [{translate: "lifesteal.setting.enchantment_chance"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("healthStealChance", formDataResponse.inputData)
                 }
             },
             {
-                placement: 8, name: "§cNote, slider shows rounded down value, the correct value is still used§f\nHearts per lifesteal enchantment level", min: 0.25, max: 10, defaultValue: "healthStealAmountPerLevel", step: 0.25, id: "slider",
+                placement: 8, name: {rawtext: [{translate: "lifesteal.setting_name.lifesteal_enchantment_steal_amount"}]}, min: 0.25, max: 10, defaultValue: "healthStealAmountPerLevel", step: 0.25, id: "slider", tooltip: {rawtext: [{translate: "lifesteal.setting.lifesteal_enchantment_steal_amount"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("healthStealAmountPerLevel", formDataResponse.inputData)
                 }
             },
             {
-                placement: 11, name: "§cNote, slider shows rounded down value, the correct value is still used§f\nHearty apple drop chance", min: 0, max: 100, defaultValue: "heartAppleChance", step: 0.1, id: "slider",
+                placement: 11, name: {rawtext: [{translate: "lifesteal.setting_name.hearty_apple_drop_chance"}]}, min: 0, max: 100, defaultValue: "heartAppleChance", step: 0.1, id: "slider", tooltip: {rawtext: [{translate: "lifesteal.setting.hearty_apple_drop_chance"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("heartAppleChance", formDataResponse.inputData)
                 }
             },
             {
-                placement: 13, name: "Max respawn hearts", min: 1, max: 50, defaultValue: "maxRandomRespawnHearts", step: 1, id: "slider",
+                placement: 13, name: {rawtext: [{translate: "lifesteal.setting_name.max_respawn_hearts"}]}, min: 1, max: 50, defaultValue: "maxRandomRespawnHearts", step: 1, id: "slider", tooltip: {rawtext: [{translate: "lifesteal.setting.max_respawn_hearts"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("maxRandomRespawnHearts", formDataResponse.inputData)
                 }
             },
             {
-                placement: 14, name: "Min respawn hearts", min: 1, max: 50, defaultValue: "minRandomRespawnHearts", step: 1, id: "slider",
+                placement: 14, name: {rawtext: [{translate: "lifesteal.setting_name.min_respawn_hearts"}]}, min: 1, max: 50, defaultValue: "minRandomRespawnHearts", step: 1, id: "slider", tooltip: {rawtext: [{translate: "lifesteal.setting.min_respawn_hearts"}]},
                 action: ({ player, formDataResponse }) => {
                     let maxHealth = getAddonSetting("maxRandomRespawnHearts")
                     if (formDataResponse.inputData > maxHealth) {
@@ -220,39 +221,45 @@ export const formData = {
         title: "Main settings",
         toggle: [
             {
-                placement: 4, name: "You lose hearts anytime you die", defaultValue: "environmentalDeaths", id: "toggle",
+                placement: 4, name: {rawtext: [{translate: "lifesteal.setting_name.environmental_deaths"}]}, defaultValue: "environmentalDeaths", id: "toggle", tooltip: {rawtext: [{translate: "lifesteal.setting.environmental_deaths"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("environmentalDeaths", formDataResponse.inputData)
                 }
             },
             {
-                placement: 5, name: "Bottled souls drop on last life", defaultValue: "dropSouls", id: "toggle",
+                placement: 5, name: {rawtext: [{translate: "lifesteal.setting_name.drop_souls"}]}, defaultValue: "dropSouls", id: "toggle", tooltip: {rawtext: [{translate: "lifesteal.setting.drop_souls"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("dropSouls", formDataResponse.inputData)
                 }
             },
             {
-                placement: 9, name: "Health naturally regenerates", defaultValue: "naturalregeneration", id: "toggle",
+                placement: 9, name: {rawtext: [{translate: "lifesteal.setting_name.natural_regeneration"}]}, defaultValue: "naturalregeneration", id: "toggle", tooltip: {rawtext: [{translate: "lifesteal.setting.natural_regeneration"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.gameRules.naturalRegeneration = formDataResponse.inputData
                 }
             },
             {
-                placement: 10, name: "Enable beacon visual and sound effects", defaultValue: "beaconEffects", id: "toggle",
+                placement: 10, name: {rawtext: [{translate: "lifesteal.setting_name.beacon_effects"}]}, defaultValue: "beaconEffects", id: "toggle", tooltip: {rawtext: [{translate: "lifesteal.setting.beacon_effects"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("beaconEffects", formDataResponse.inputData)
+                }
+            },
+            {
+                placement: 11, name: {rawtext: [{translate: "lifesteal.setting_name.withdraw_command"}]}, defaultValue: "withdrawCommand", id: "toggle", tooltip: {rawtext: [{translate: "lifesteal.setting.withdraw_command"}]},
+                action: ({ formDataResponse }) => {
+                    Mc.world.setDynamicProperty("withdrawCommand", formDataResponse.inputData)
                 }
             }
         ],
         slider: [
             {
-                placement: 0, name: "Starting hearts", min: 1, max: 50, defaultValue: "startingHealth", step: 1, id: "slider",
+                placement: 0, name: {rawtext: [{translate: "lifesteal.setting_name.starting_hearts"}]}, min: 1, max: 50, defaultValue: "startingHealth", step: 1, id: "slider", tooltip: {rawtext: [{translate: "lifesteal.setting.starting_hearts"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("startingHealth", formDataResponse.inputData)
                 }
             },
             {
-                placement: 1, name: "Max hearts", min: 1, max: 50, defaultValue: "maxHealth", step: 1, id: "slider",
+                placement: 1, name: {rawtext: [{translate: "lifesteal.setting_name.max_hearts"}]}, min: 1, max: 50, defaultValue: "maxHealth", step: 1, id: "slider", tooltip: {rawtext: [{translate: "lifesteal.setting.max_hearts"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("maxHealth", formDataResponse.inputData)
                     for (const player of Mc.world.getAllPlayers()) {
@@ -261,25 +268,25 @@ export const formData = {
                 }
             },
             {
-                placement: 2, name: "Hearts gained when you kill", min: 0, max: 25, defaultValue: "healthGain", step: 1, id: "slider",
+                placement: 2, name: {rawtext: [{translate: "lifesteal.setting_name.kill_reword"}]}, min: 0, max: 25, defaultValue: "healthGain", step: 1, id: "slider", tooltip: {rawtext: [{translate: "lifesteal.setting.kill_reword"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("healthGain", formDataResponse.inputData)
                 }
             },
             {
-                placement: 3, name: "Hearts lost when you die", min: 0, max: 25, defaultValue: "healthLose", step: 1, id: "slider",
+                placement: 3, name: {rawtext: [{translate: "lifesteal.setting_name.death_penalty"}]}, min: 0, max: 25, defaultValue: "healthLose", step: 1, id: "slider", tooltip: {rawtext: [{translate: "lifesteal.setting.death_penalty"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("healthLose", formDataResponse.inputData)
                 }
             },
             {
-                placement: 6, name: "Required revive beacon base size", min: 0, max: 4, defaultValue: "requiredBeaconBaseSize", step: 1, id: "slider",
+                placement: 6, name: {rawtext: [{translate: "lifesteal.setting_name.beacon_size"}]}, min: 0, max: 4, defaultValue: "requiredBeaconBaseSize", step: 1, id: "slider", tooltip: {rawtext: [{translate: "lifesteal.setting.beacon_size"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("requiredBeaconBaseSize", formDataResponse.inputData)
                 }
             },
             {
-                placement: 7, name: "Hearts given after being revived/unbanned", min: 1, max: 50, defaultValue: "respawnHearts", step: 1, id: "slider",
+                placement: 7, name: {rawtext: [{translate: "lifesteal.setting_name.respawn_hearts"}]}, min: 1, max: 50, defaultValue: "respawnHearts", step: 1, id: "slider", tooltip: {rawtext: [{translate: "lifesteal.setting.respawn_hearts"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("respawnHearts", formDataResponse.inputData)
                 }
@@ -288,9 +295,10 @@ export const formData = {
         dropdown: [
             {
                 placement: 8,
-                name: "When you lose your last heart",
+                name: {rawtext: [{translate: "lifesteal.setting_name.death_mode"}]},
                 list: ["nothing", "spectator", "ban"],
                 defaultValue: "afterLastLife", id: "dropDown",
+                tooltip: {rawtext: [{translate: "lifesteal.setting.death_mode"}]},
                 action: ({ formDataResponse }) => {
                     Mc.world.setDynamicProperty("afterLastLife", formDataResponse.inputData)
                 }
@@ -302,7 +310,7 @@ export const formData = {
         title: "Menu",
         slider: [
             {
-                placement: 0, name: "Amount", min: 1, max: "playersHealth", defaultValue: 1, step: 1, id: "slider",
+                placement: 0, name: "Amount", min: 1, max: "playersHealth", defaultValue: 1, step: 1, id: "slider", tooltip: {rawtext: [{translate: "lifesteal.setting.revive_hearts"}]},
                 action: ({ player, formDataResponse }) => {
                     setPlayersHealth({ player: player, hearts: formDataResponse.inputData, withdraw: true })
                 }
@@ -322,7 +330,7 @@ export const formData = {
         title: "Heart recipe",
         toggle: [
             {
-                placement: 0, name: "Enable floor crafting for item", defaultValue: "recipes", id: "toggle", recipe: "heart",
+                placement: 0, name: "Enable floor crafting for item", defaultValue: "recipes", id: "toggle", recipe: "heart", tooltip: {rawtext: [{translate: "lifesteal.setting.heart_recipe"}]},
             },
         ],
         textField: [
@@ -405,7 +413,7 @@ export const formData = {
         title: "Revive beacon recipe",
         toggle: [
             {
-                placement: 0, name: "Enable floor crafting for item", defaultValue: "recipes", id: "toggle", recipe: "revive_beacon",
+                placement: 0, name: "Enable floor crafting for item", defaultValue: "recipes", id: "toggle", recipe: "revive_beacon", tooltip: {rawtext: [{translate: "lifesteal.setting.beacon_recipe"}]},
             },
         ],
         textField: [
@@ -496,12 +504,12 @@ export const formData = {
         ],
         slider: [
             {
-                placement: 2, admin: true, name: "Hearts", min: 1, max: 50, defaultValue: "respawnHearts", step: 1, id: "slider",
+                placement: 2, admin: true, name: "Hearts", min: 1, max: 50, defaultValue: "respawnHearts", step: 1, id: "slider", tooltip: {rawtext: [{translate: "lifesteal.setting.revive_hearts"}]},
             }
         ],
         toggle: [
             {
-                placement: 1, admin: true, name: "Respawn player with custom hearts", defaultValue: false, id: "toggle",
+                placement: 1, admin: true, name: "Respawn player with custom hearts", defaultValue: false, id: "toggle", tooltip: {rawtext: [{translate: "lifesteal.setting.enable_revive_hearts"}]},
             }
         ],
         action: ({ player, admin, formDataResponse, location }) => {
@@ -524,19 +532,17 @@ export const formData = {
         title: "Reviving",
         slider: [
             {
-                placement: 2, admin: true, name: "Hearts", min: 1, max: 50, defaultValue: "respawnHearts", step: 1, id: "slider",
+                placement: 2, admin: true, name: "Hearts", min: 1, max: 50, defaultValue: "respawnHearts", step: 1, id: "slider", tooltip: {rawtext: [{translate: "lifesteal.setting.revive_hearts"}]},
             }
         ],
         toggle: [
             {
-                placement: 1, admin: true, name: "Respawn player with custom hearts", defaultValue: false, id: "toggle",
+                placement: 1, admin: true, name: "Respawn player with custom hearts", defaultValue: false, id: "toggle", tooltip: {rawtext: [{translate: "lifesteal.setting.enable_revive_hearts"}]},
             }
         ],
         textField: [
             {
-                placement: 0,
-                name: "Players name:",
-                id: "textField",
+                placement: 0, name: "Players name:", id: "textField", tooltip: {rawtext: [{translate: "lifesteal.setting.revive_username"}]},
             }
         ],
         action: ({ player, admin, formDataResponse, location }) => {
