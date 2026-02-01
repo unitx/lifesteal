@@ -173,13 +173,16 @@ Mc.system.beforeEvents.startup.subscribe((eventData)=>{
     eventData.customCommandRegistry.registerEnum("lifesteal:settings", settingsKey);
     eventData.customCommandRegistry.registerCommand({
       name: "lifesteal:settings", 
-      description: "Withdraw your hearts, giving you the item form.",
-      permissionLevel: Mc.CommandPermissionLevel.Any,
-      cheatsRequired: false, 
-      optionalParameters: [{ type: Mc.CustomCommandParamType.Integer, name: "Quantity" }],
+      description: "Open the settings menu using command.",
+      permissionLevel: Mc.CommandPermissionLevel.Admin,
+      cheatsRequired: false
     },    
     (data) => {
-      return {status: Mc.CustomCommandStatus.Success};
+        Mc.system.run(()=>{
+            if (data.sourceEntity.typeId !== "minecraft:player") return;
+            openForm({ player: data.sourceEntity, formKey: "mainSettingsMenu", admin: true });
+            return {status: Mc.CustomCommandStatus.Success};
+        });
     });
     eventData.customCommandRegistry.registerCommand({
       name: "lifesteal:withdraw_gui", 

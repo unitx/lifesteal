@@ -1,6 +1,6 @@
 {
   "format_version": 2,
-  "metadata": {"authors": ["UnitX"]},
+  "metadata": {"authors": ["UnitX"],"product_type": "addon"},
   "header": {
     "name": "LifeSteal v2.16",
     "description": "LifeSteal v2.16 On Minecraft Bedrock | By: UnitX | Please do not steal code or claim this pack as your own and please credit me with name and link to the pack | ©UnitX",
@@ -25,5 +25,6 @@
   "dependencies": [
     {"module_name": "@minecraft/server", "version": "2.2.0"},
     {"module_name": "@minecraft/server-ui", "version": "2.0.0"}
-  ]
+  ],
+  "capabilities": ["pbr"]
 }
